@@ -1,0 +1,596 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout>
+	<!-- Intro Overlay -->
+	<div class="intro-overlay" id="intro">
+		<div class="intro-content">
+			<h1 class="intro-title">CHOPPD</h1>
+			<p class="intro-subtitle">Agentic Training Playground</p>
+			<button class="enter-btn" id="enterBtn">ENTER SYSTEM</button>
+		</div>
+	</div>
+
+	<!-- Main Content -->
+	<div class="main-content" id="mainContent">
+		<!-- Control Diagram / Navigation Hints -->
+		<div class="nav-hints">
+			<div class="nav-hint up">
+				<span>UP</span>
+				<small>Page Up</small>
+			</div>
+			<div class="nav-hint down">
+				<span>DOWN</span>
+				<small>Page Down</small>
+			</div>
+			<div class="nav-hint left">
+				<span>LEFT</span>
+				<small>Tool Kit</small>
+			</div>
+			<div class="nav-hint right">
+				<span>RIGHT</span>
+				<small>OS Clone</small>
+			</div>
+		</div>
+
+		<!-- Central Terminal -->
+		<div class="terminal-container">
+			<div class="terminal-header">
+				<span class="status-dot"></span>
+				<span class="terminal-title">VIM://COMMAND_CENTER</span>
+				<div class="api-status">API: DISCONNECTED</div>
+			</div>
+			<div class="terminal-window" id="terminalWindow">
+				<div class="output-log" id="outputLog">
+					<div class="line system">
+						Welcome to CHOPPD Agentic Playground.
+					</div>
+					<div class="line warning">
+						WARNING: VIM Knowledge Required for Navigation.
+					</div>
+					<div class="line info">
+						Type <span class="cmd">:help</span> for available commands.
+					</div>
+					<div class="line link">
+						New to Vim? <a
+							href="https://vim.fandom.com/wiki/Tutorial"
+							target="_blank">Access Knowledge Base</a>
+					</div>
+				</div>
+				<div class="input-line">
+					<span class="prompt">~</span>
+					<input
+						type="text"
+						id="vimInput"
+						class="vim-input"
+						autocomplete="off"
+						spellcheck="false"
+						autofocus
+					/>
+					<span class="cursor-block"></span>
+				</div>
+			</div>
+		</div>
+
+		<!-- API Key Input (Hidden by default or subtle) -->
+		<div class="api-panel" id="apiPanel">
+			<h3>// NEURAL_LINK_CONFIG</h3>
+			<div class="input-group">
+				<label>MODEL SELECTOR</label>
+				<select id="modelSelect">
+					<option value="qwen">Qwen 2.5 Coder 7B</option>
+					<option value="deepseek">Deepseek 7B</option>
+					<option value="gemini">Gemini 3 Low</option>
+				</select>
+			</div>
+			<div class="input-group">
+				<label>API KEY</label>
+				<input type="password" placeholder="sk-..." />
+			</div>
+		</div>
+	</div>
+</Layout>
+
+<style>
+	/* Intro Overlay */
+	.intro-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: radial-gradient(circle at center, #0d001a 0%, #050505 100%);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 9999;
+		transition: all 1.2s cubic-bezier(0.76, 0, 0.24, 1);
+	}
+
+	.intro-overlay.hidden {
+		opacity: 0;
+		transform: scale(3);
+		pointer-events: none;
+	}
+
+	.intro-content {
+		text-align: center;
+		animation: fadeInUp 1s ease-out;
+	}
+
+	.intro-title {
+		font-family: var(--font-display);
+		font-size: clamp(4rem, 15vw, 12rem);
+		background: linear-gradient(
+			135deg,
+			var(--color-primary),
+			var(--color-secondary),
+			var(--color-accent)
+		);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+		margin-bottom: 0;
+		letter-spacing: 0.05em;
+		text-shadow: 0 0 80px rgba(255, 0, 255, 0.5);
+	}
+
+	.intro-subtitle {
+		font-size: clamp(1rem, 3vw, 2rem);
+		color: var(--color-text-muted);
+		margin-top: -1rem;
+		letter-spacing: 0.3em;
+		font-weight: 300;
+		text-transform: uppercase;
+	}
+
+	.enter-btn {
+		margin-top: 3rem;
+		padding: 1rem 3rem;
+		font-size: 1.2rem;
+		font-weight: 700;
+		letter-spacing: 0.2em;
+		background: transparent;
+		border: 2px solid var(--color-primary);
+		color: var(--color-primary);
+		cursor: pointer;
+		position: relative;
+		overflow: hidden;
+		transition: all 0.3s ease;
+		text-transform: uppercase;
+		font-family: var(--font-body);
+	}
+
+	.enter-btn::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: -100%;
+		width: 100%;
+		height: 100%;
+		background: var(--color-primary);
+		transition: left 0.3s ease;
+		z-index: -1;
+	}
+
+	.enter-btn:hover::before {
+		left: 0;
+	}
+
+	.enter-btn:hover {
+		color: #000;
+		box-shadow: 0 0 30px var(--color-primary);
+	}
+
+	/* Main Content */
+	.main-content {
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 0.6s ease 0.6s;
+		height: 100vh;
+		width: 100vw;
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		overflow: hidden;
+	}
+
+	.main-content.visible {
+		opacity: 1;
+		pointer-events: all;
+	}
+
+	/* Navigation Hints (Control Diagram) */
+	.nav-hints {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		pointer-events: none;
+	}
+
+	.nav-hint {
+		position: absolute;
+		color: var(--color-text-muted);
+		font-family: var(--font-display);
+		text-transform: uppercase;
+		font-size: 1.5rem;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		opacity: 0.5;
+		transition: all 0.3s ease;
+	}
+
+	.nav-hint span {
+		text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+	}
+
+	.nav-hint small {
+		font-family: var(--font-body);
+		font-size: 0.8rem;
+		opacity: 0.7;
+		margin-top: 0.2rem;
+	}
+
+	.nav-hint.up {
+		top: 2rem;
+		left: 50%;
+		transform: translateX(-50%);
+	}
+	.nav-hint.down {
+		bottom: 2rem;
+		left: 50%;
+		transform: translateX(-50%);
+	}
+	.nav-hint.left {
+		left: 2rem;
+		top: 50%;
+		transform: translateY(-50%) rotate(-90deg);
+	}
+	.nav-hint.right {
+		right: 2rem;
+		top: 50%;
+		transform: translateY(-50%) rotate(90deg);
+	}
+
+	/* Terminal Styling */
+	.terminal-container {
+		width: 800px;
+		max-width: 90%;
+		background: rgba(10, 10, 12, 0.95);
+		border: 1px solid #333;
+		border-radius: 4px;
+		box-shadow:
+			0 0 50px rgba(0, 0, 0, 0.5),
+			0 0 20px rgba(75, 159, 255, 0.1);
+		backdrop-filter: blur(10px);
+		display: flex;
+		flex-direction: column;
+		animation: glow 4s infinite alternate;
+	}
+
+	@keyframes glow {
+		0% {
+			box-shadow:
+				0 0 50px rgba(0, 0, 0, 0.5),
+				0 0 20px rgba(75, 159, 255, 0.05);
+			border-color: #333;
+		}
+		100% {
+			box-shadow:
+				0 0 60px rgba(0, 0, 0, 0.6),
+				0 0 30px rgba(75, 159, 255, 0.15);
+			border-color: #444;
+		}
+	}
+
+	.terminal-header {
+		padding: 0.5rem 1rem;
+		background: #1a1a1a;
+		border-bottom: 1px solid #333;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.status-dot {
+		width: 10px;
+		height: 10px;
+		background: #00ff00;
+		border-radius: 50%;
+		box-shadow: 0 0 5px #00ff00;
+	}
+
+	.terminal-title {
+		font-family: monospace;
+		font-size: 0.9rem;
+		color: #888;
+		flex-grow: 1;
+	}
+
+	.api-status {
+		font-size: 0.7rem;
+		color: var(--color-primary);
+		border: 1px solid var(--color-primary);
+		padding: 0.1rem 0.4rem;
+		border-radius: 2px;
+	}
+
+	.terminal-window {
+		padding: 1.5rem;
+		height: 400px;
+		overflow-y: auto;
+		font-family: "Courier New", Courier, monospace;
+		color: #ccc;
+		font-size: 1rem;
+		line-height: 1.5;
+	}
+
+	.output-log {
+		margin-bottom: 1rem;
+	}
+
+	.line {
+		margin-bottom: 0.2rem;
+	}
+	.line.system {
+		color: var(--color-secondary);
+	}
+	.line.warning {
+		color: var(--color-accent);
+	}
+	.line.error {
+		color: #ff4444;
+	}
+	.line.info {
+		color: #888;
+	}
+	.line.link a {
+		color: var(--color-primary);
+		text-decoration: none;
+		border-bottom: 1px dotted var(--color-primary);
+	}
+	.cmd {
+		color: var(--color-primary);
+		font-weight: bold;
+	}
+
+	.input-line {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.prompt {
+		color: #00ff00;
+	}
+
+	.vim-input {
+		background: transparent;
+		border: none;
+		color: #fff;
+		font-family: inherit;
+		font-size: inherit;
+		flex-grow: 1;
+		outline: none;
+		caret-color: transparent; /* Use custom cursor block */
+	}
+
+	.cursor-block {
+		width: 10px;
+		height: 1.2em;
+		background: rgba(255, 255, 255, 0.5);
+		animation: blink 1s step-end infinite;
+		display: none; /* Only show if we simulate it, doing native caret for now but hidden */
+	}
+
+	/* Native input caret color restoration for usability, or style custom later */
+	.vim-input {
+		caret-color: #00ff00;
+	}
+
+	/* API Panel */
+	.api-panel {
+		position: absolute;
+		bottom: 2rem;
+		right: 2rem;
+		width: 300px;
+		padding: 1.5rem;
+		background: rgba(0, 0, 0, 0.8);
+		border: 1px solid #333;
+		border-left: 3px solid var(--color-primary);
+	}
+
+	.api-panel h3 {
+		font-size: 0.9rem;
+		margin-bottom: 1rem;
+		color: var(--color-text-muted);
+		letter-spacing: 0.1em;
+	}
+
+	.input-group {
+		margin-bottom: 1rem;
+	}
+
+	.input-group label {
+		display: block;
+		font-size: 0.7rem;
+		color: #666;
+		margin-bottom: 0.3rem;
+	}
+
+	.input-group select,
+	.input-group input {
+		width: 100%;
+		background: #111;
+		border: 1px solid #333;
+		color: #fff;
+		padding: 0.5rem;
+		font-family: "Courier New", monospace;
+	}
+
+	.input-group select:focus,
+	.input-group input:focus {
+		border-color: var(--color-primary);
+		outline: none;
+	}
+
+	@keyframes fadeInUp {
+		from {
+			opacity: 0;
+			transform: translateY(30px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+</style>
+
+<script>
+	const enterBtn = document.getElementById("enterBtn");
+	const intro = document.getElementById("intro");
+	const mainContent = document.getElementById("mainContent");
+	const terminalInput = document.getElementById("vimInput");
+	const outputLog = document.getElementById("outputLog");
+
+	// Intro Transition
+	enterBtn?.addEventListener("click", () => {
+		intro?.classList.add("hidden");
+		setTimeout(() => {
+			mainContent?.classList.add("visible");
+			terminalInput?.focus();
+		}, 800);
+	});
+
+	// Terminal Logic
+	terminalInput?.addEventListener("keydown", (e) => {
+		if (e.key === "Enter") {
+			// @ts-ignore
+			const command = e.target.value.trim();
+			// @ts-ignore
+			e.target.value = ""; // Clear input
+
+			const line = document.createElement("div");
+			line.className = "line";
+			line.innerHTML = `<span class="prompt">~</span> ${command}`;
+			outputLog?.appendChild(line);
+
+			processCommand(command);
+
+			// Auto scroll
+			const terminalWindow = document.getElementById("terminalWindow");
+			if (terminalWindow)
+				terminalWindow.scrollTop = terminalWindow.scrollHeight;
+		}
+	});
+
+	function processCommand(cmd) {
+		const response = document.createElement("div");
+		response.className = "line info";
+
+		if (cmd.startsWith(":")) {
+			const action = cmd.substring(1).toLowerCase();
+			switch (action) {
+				case "help":
+					response.innerHTML = `
+						<div style="color: var(--color-primary)">AVAILABLE COMMANDS:</div>
+						<div>:help    - Show this message</div>
+						<div>:clear   - Clear terminal</div>
+						<div>:nav [u|d|l|r] - Navigate (Up, Down, Left, Right)</div>
+						<div>:agent [task] - Dispatch agent (Requires API Key)</div>
+					`;
+					break;
+				case "clear":
+					if (outputLog) outputLog.innerHTML = "";
+					return; // Don't append response
+				case "q":
+				case "quit":
+					response.textContent = "Session persistent. Cannot quit.";
+					break;
+				default:
+					response.className = "line error";
+					response.textContent = `E492: Not an editor command: ${cmd}`;
+			}
+		} else {
+			response.className = "line error";
+			response.textContent = `E488: Trailing characters (Use ':' for commands)`;
+		}
+
+		if (outputLog) outputLog.appendChild(response);
+	}
+
+	// Global Navigation Listener
+	document.addEventListener("keydown", (e) => {
+		// Only navigate if we aren't typing in the input (unless it's empty? No, keep it simple)
+		// Actually user said "Left right up down keys to navigate", even if terminal is there.
+		// But usually arrow keys in input move cursor.
+		// Let's us Alt+Arrow or just check if input is focused.
+		// For the sake of the "Vim" feel, maybe we assume the terminal is always focused but we handle special keys.
+		// Let's stick to: If focused on input, arrows move cursor. If NOT focused, arrows navigate.
+		// BUT the user likely wants to navigate seamlessly.
+		// Let's implement global navigation on Alt + Arrow OR standard Arrow if input is empty?
+		// User said "left right up down keys... to navigate". I will map them directly but prevent default if it interferes with something critical.
+		// Since it's a "Control Diagram", maybe standard arrows are best.
+
+		if (
+			document.activeElement === terminalInput &&
+			terminalInput.value !== ""
+		) {
+			return; // Allow cursor movement if typing
+		}
+
+		// Mock Navigation
+		switch (e.key) {
+			case "ArrowUp":
+				flashNav("up");
+				// window.location.href = '/page-up';
+				logSystem("Navigating UP...");
+				break;
+			case "ArrowDown":
+				flashNav("down");
+				// window.location.href = '/page-down';
+				logSystem("Navigating DOWN...");
+				break;
+			case "ArrowLeft":
+				flashNav("left");
+				// window.location.href = 'https://operator.browserbase.com/'; // Mock
+				logSystem("Navigating LEFT (Toolkit)...");
+				break;
+			case "ArrowRight":
+				flashNav("right");
+				// window.location.href = 'https://dustinbrett.com/'; // Mock
+				logSystem("Navigating RIGHT (OS Clone)...");
+				break;
+		}
+	});
+
+	function flashNav(dir) {
+		const hint = document.querySelector(`.nav-hint.${dir}`);
+		if (hint) {
+			hint.style.color = "#fff";
+			hint.style.textShadow = "0 0 20px var(--color-primary)";
+			hint.style.opacity = "1";
+			setTimeout(() => {
+				hint.style.color = "";
+				hint.style.textShadow = "";
+				hint.style.opacity = "";
+			}, 300);
+		}
+	}
+
+	function logSystem(msg) {
+		const line = document.createElement("div");
+		line.className = "line system";
+		line.textContent = `[SYSTEM] ${msg}`;
+		outputLog?.appendChild(line);
+		const terminalWindow = document.getElementById("terminalWindow");
+		if (terminalWindow)
+			terminalWindow.scrollTop = terminalWindow.scrollHeight;
+	}
+</script>
+```
