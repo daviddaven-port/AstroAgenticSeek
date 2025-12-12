@@ -1,0 +1,190 @@
+---
+
+---
+
+<div class="screen main-screen">
+    <div class="terminal-container" id="terminal-container"></div>
+</div>
+
+<style>
+    /* ... existing styles ... */
+    .main-screen {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: radial-gradient(circle at center, #1a1a2e 0%, #000000 100%);
+    }
+
+    .terminal-container {
+        width: 80%;
+        height: 80%;
+        background: #000;
+        border: 1px solid #333;
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+        padding: 5px;
+        overflow: hidden;
+    }
+
+    /* Ensure xterm container takes full height */
+    :global(.xterm-screen) {
+        height: 100% !important;
+    }
+</style>
+
+<script>
+    import { Terminal } from "@xterm/xterm";
+    import { FitAddon } from "@xterm/addon-fit";
+    import "@xterm/xterm/css/xterm.css";
+
+    const termContainer = document.getElementById("terminal-container");
+
+    if (termContainer) {
+        const term = new Terminal({
+            cursorBlink: true,
+            theme: {
+                background: "#000000",
+                foreground: "#00ff00",
+                cursor: "#00ff00",
+                selectionBackground: "rgba(0, 255, 0, 0.3)",
+                black: "#000000",
+                red: "#ff0000",
+                green: "#00ff00",
+                yellow: "#ffff00",
+                blue: "#0000ff",
+                magenta: "#ff00ff",
+                cyan: "#00ffff",
+                white: "#ffffff",
+            },
+            fontFamily: "monospace",
+            fontSize: 16,
+            convertEol: true, // Treat \n as new line
+        });
+
+        const fitAddon = new FitAddon();
+        term.loadAddon(fitAddon);
+
+        term.open(termContainer);
+        fitAddon.fit();
+
+        // Welcome Message
+        term.writeln("\x1b[1;32mWelcome to CHOPPD Agentic Playground\x1b[0m");
+        term.writeln("Type \x1b[1;34mhelp\x1b[0m for a list of commands.");
+        term.write("\r\n$ ");
+
+        let input = "";
+
+        term.onData((e) => {
+            switch (e) {
+                case "\r": // Enter
+                    term.write("\r\n");
+                    processCommand(input);
+                    input = "";
+                    break;
+                case "\u007F": // Backspace (DEL)
+                    if (input.length > 0) {
+                        term.write("\b \b");
+                        input = input.substring(0, input.length - 1);
+                    }
+                    break;
+                default:
+                    // Print all other characters for now
+                    if (
+                        (e >= String.fromCharCode(0x20) &&
+                            e <= String.fromCharCode(0x7e)) ||
+                        e >= "\u00a0"
+                    ) {
+                        input += e;
+                        term.write(e);
+                    }
+            }
+        });
+
+        function processCommand(cmd: string) {
+            const trimmed = cmd.trim();
+            if (!trimmed) {
+                term.write("$ ");
+                return;
+            }
+
+            const parts = trimmed.split(" ");
+            const command = parts[0].toLowerCase();
+            const args = parts.slice(1);
+
+            switch (command) {
+                case "help":
+                    term.writeln("Available commands:");
+                    term.writeln("  help           - Show this help message");
+                    term.writeln("  clear          - Clear the terminal");
+                    term.writeln("  nav [u|d|l|r]  - Navigate to a screen");
+                    term.writeln(
+                        "  agent [msg]    - Send a message to the agent (Mock)",
+                    );
+                    break;
+                case "clear":
+                    term.clear();
+                    break;
+                case "nav":
+                    handleNav(args[0]);
+                    break;
+                case "agent":
+                    term.writeln(
+                        "\x1b[33m[AGENT] Processing: " +
+                            args.join(" ") +
+                            "\x1b[0m",
+                    );
+                    // In the future we will hook this up to the real agent
+                    break;
+                default:
+                    term.writeln(
+                        `\x1b[31mjsh: command not found: ${command}\x1b[0m`,
+                    );
+            }
+            term.write("$ ");
+        }
+
+        function handleNav(dir: string) {
+            // We need to trigger the navigation in index.astro.
+            // Since this is a module script, we can dispatch a custom event on window
+            if (
+                !["up", "down", "left", "right", "u", "d", "l", "r"].includes(
+                    dir,
+                )
+            ) {
+                term.writeln("Usage: nav [up|down|left|right]");
+                return;
+            }
+
+            let direction = dir;
+            if (dir === "u") direction = "up";
+            if (dir === "d") direction = "down";
+            if (dir === "l") direction = "left";
+            if (dir === "r") direction = "right";
+
+            if (direction === "down") {
+                term.writeln("Down screen not implemented yet.");
+                return;
+            }
+
+            // Dispatch event that index.astro script listens to?
+            // Or better yet, we can't easily access the scope of index.astro script.
+            // We will simulate the key press or dispatch a custom event.
+
+            // Let's use a custom event "navigate"
+            const event = new CustomEvent("navigate", { detail: direction });
+            window.dispatchEvent(event);
+            term.writeln(`Navigating to ${direction}...`);
+        }
+
+        // Handle resizing
+        window.addEventListener("resize", () => {
+            fitAddon.fit();
+        });
+    }
+
+    // Listen for focus to help with keyboard capture
+    window.addEventListener("focus", () => {
+        // maybe focus term?
+    });
+</script>

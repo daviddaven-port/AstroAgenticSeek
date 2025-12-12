@@ -9,6 +9,17 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^5.16.4"
+    "@ai-sdk/google": "^2.0.46",
+    "@ai-sdk/openai": "^2.0.85",
+    "@astrojs/react": "^4.4.2",
+    "@browserbasehq/sdk": "^2.6.0",
+    "@browserbasehq/stagehand": "^3.0.5",
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
+    "ai": "^5.0.112",
+    "astro": "^5.16.4",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "zod": "^4.1.13"
   }
 }

@@ -1,0 +1,70 @@
+---
+
+---
+
+<div class="screen up-screen">
+    <div class="voice-container">
+        <div class="visualizer">
+            <!-- Simple CSS Visualizer Animation -->
+            <div class="wave"></div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+        </div>
+        <h1>VOICE INTERFACE</h1>
+        <p>Listening...</p>
+    </div>
+</div>
+
+<style>
+    .up-screen {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, #2b002b, #000);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #ff00ff;
+        font-family: var(--font-display, sans-serif);
+    }
+
+    .voice-container {
+        text-align: center;
+    }
+
+    .visualizer {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 2rem;
+        height: 60px;
+        align-items: center;
+    }
+
+    .wave {
+        width: 10px;
+        height: 20px;
+        background: #ff00ff;
+        border-radius: 5px;
+        animation: wave 1s infinite ease-in-out;
+    }
+
+    .wave:nth-child(2) {
+        animation-delay: 0.1s;
+    }
+    .wave:nth-child(3) {
+        animation-delay: 0.2s;
+    }
+
+    @keyframes wave {
+        0%,
+        100% {
+            height: 20px;
+            opacity: 0.5;
+        }
+        50% {
+            height: 60px;
+            opacity: 1;
+            box-shadow: 0 0 20px #ff00ff;
+        }
+    }
+</style>

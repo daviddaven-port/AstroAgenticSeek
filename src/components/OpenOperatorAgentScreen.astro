@@ -1,0 +1,319 @@
+---
+
+---
+
+<div class="screen left-screen">
+    <div class="agent-interface">
+        <div class="header">
+            <h2>// OPEN_OPERATOR_AGENT</h2>
+            <div id="status" class="status">IDLE</div>
+        </div>
+
+        <div class="agent-display" id="agent-logs">
+            <div class="log-entry system">
+                > Agent initialized. Waiting for task...
+            </div>
+        </div>
+
+        <div class="agent-controls">
+            <input
+                type="text"
+                id="taskInput"
+                placeholder="Enter task (e.g. 'Go to google.com and find the price of bitcoin')"
+                class="agent-input"
+            />
+            <div class="control-row">
+                <button id="executeBtn" class="agent-btn">EXECUTE</button>
+                <button id="stopBtn" class="agent-btn stop" disabled
+                    >STOP</button
+                >
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .left-screen {
+        width: 100%;
+        height: 100%;
+        background: #0d0d0d;
+        color: #00ffcc;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: "Courier New", monospace;
+    }
+
+    .agent-interface {
+        width: 90%;
+        height: 90%;
+        border: 2px solid #00ffcc;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background: rgba(0, 20, 20, 0.95);
+        box-shadow: 0 0 30px rgba(0, 255, 204, 0.1);
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #005544;
+        padding-bottom: 1rem;
+    }
+
+    .status {
+        font-weight: bold;
+        padding: 2px 8px;
+        background: #003322;
+        border: 1px solid #00ffcc;
+    }
+
+    .agent-display {
+        flex-grow: 1;
+        border: 1px solid #005544;
+        padding: 1rem;
+        background: #000;
+        overflow-y: auto;
+        font-size: 0.9rem;
+    }
+
+    .log-entry {
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+    .log-entry.system {
+        color: #888;
+    }
+    .log-entry.user {
+        color: #fff;
+    }
+    .log-entry.agent {
+        color: #00ffcc;
+    }
+    .log-entry.error {
+        color: #ff3333;
+    }
+    .log-entry.step {
+        color: #ffff00;
+        margin-left: 10px;
+        border-left: 2px solid #333;
+        padding-left: 8px;
+    }
+
+    .agent-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .agent-input {
+        width: 100%;
+        padding: 1rem;
+        background: #001111;
+        border: 1px solid #00ffcc;
+        color: #00ffcc;
+        font-family: monospace;
+        font-size: 1rem;
+    }
+
+    .agent-input:focus {
+        outline: none;
+        background: #002222;
+    }
+
+    .control-row {
+        display: flex;
+        gap: 10px;
+    }
+
+    .agent-btn {
+        flex: 1;
+        padding: 1rem;
+        background: #00ffcc;
+        color: #000;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .agent-btn:hover:not(:disabled) {
+        background: #fff;
+        box-shadow: 0 0 15px #00ffcc;
+    }
+
+    .agent-btn.stop {
+        background: #ff3333;
+        color: white;
+    }
+
+    .agent-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+</style>
+
+<script>
+    import { v4 as uuidv4 } from "uuid"; // Standard UUID if available, or just random
+
+    // Polyfill or simple random ID if uuid package not available in client
+    const generateId = () =>
+        Math.random().toString(36).substring(2, 15) +
+        Math.random().toString(36).substring(2, 15);
+
+    const taskInput = document.getElementById("taskInput") as HTMLInputElement;
+    const executeBtn = document.getElementById(
+        "executeBtn",
+    ) as HTMLButtonElement;
+    const stopBtn = document.getElementById("stopBtn") as HTMLButtonElement;
+    const logsContainer = document.getElementById(
+        "agent-logs",
+    ) as HTMLDivElement;
+    const statusEl = document.getElementById("status") as HTMLDivElement;
+
+    let isRunning = false;
+    let sessionId = generateId();
+    let previousSteps: any[] = [];
+    let controller: AbortController | null = null;
+
+    function log(
+        msg: string,
+        type: "system" | "user" | "agent" | "error" | "step" = "system",
+    ) {
+        if (!logsContainer) return;
+        const entry = document.createElement("div");
+        entry.className = `log-entry ${type}`;
+        entry.textContent = type === "step" ? `STEP: ${msg}` : `> ${msg}`;
+        logsContainer.appendChild(entry);
+        logsContainer.scrollTop = logsContainer.scrollHeight;
+    }
+
+    async function startAgent() {
+        if (isRunning) return;
+
+        const goal = taskInput.value.trim();
+        if (!goal) {
+            log("Please enter a task.", "error");
+            return;
+        }
+
+        isRunning = true;
+        sessionId = generateId(); // New session
+        previousSteps = [];
+        updateUI(true);
+        controller = new AbortController();
+
+        log(`Starting task: "${goal}"`, "user");
+        log(`Session ID: ${sessionId}`, "system");
+
+        try {
+            // 1. Start / Initial Navigation
+            statusEl.textContent = "PLANNING...";
+            const startData = await callApi({
+                action: "START",
+                goal,
+                sessionId,
+            });
+
+            if (!startData.success) throw new Error(startData.error);
+
+            let currentStep = startData.result;
+            // previousSteps.push(currentStep); // The API returns steps list usually
+            if (startData.steps) previousSteps = startData.steps;
+
+            log(currentStep.text, "step");
+
+            // Loop
+            while (isRunning) {
+                if (controller?.signal.aborted) break;
+
+                // 2. Execute Step
+                statusEl.textContent = "EXECUTING...";
+                // log(`Executing: ${currentStep.tool} ${currentStep.instruction}`, 'system');
+
+                const execData = await callApi({
+                    action: "EXECUTE_STEP",
+                    step: currentStep,
+                    sessionId,
+                });
+                if (!execData.success) throw new Error(execData.error);
+
+                if (execData.extraction) {
+                    log(
+                        `Extraction: ${JSON.stringify(execData.extraction)}`,
+                        "agent",
+                    );
+                }
+
+                if (execData.done) {
+                    log("Goal achieved!", "system");
+                    break;
+                }
+
+                // 3. Get Next Step
+                statusEl.textContent = "THINKING...";
+                const nextData = await callApi({
+                    action: "GET_NEXT_STEP",
+                    goal,
+                    sessionId,
+                    previousSteps,
+                });
+                if (!nextData.success) throw new Error(nextData.error);
+
+                currentStep = nextData.result;
+                if (nextData.steps) previousSteps = nextData.steps;
+
+                log(currentStep.text, "step");
+                log(`Reasoning: ${currentStep.reasoning}`, "system");
+
+                if (currentStep.tool === "CLOSE") {
+                    log("Agent decided to close session.", "system");
+                    break;
+                }
+            }
+        } catch (error: any) {
+            if (error.name === "AbortError") {
+                log("Agent stopped by user.", "warning");
+            } else {
+                log(`Error: ${error.message}`, "error");
+            }
+        } finally {
+            stopAgent();
+        }
+    }
+
+    async function callApi(payload: any) {
+        const res = await fetch("/api/agent", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+            signal: controller?.signal,
+        });
+        return await res.json();
+    }
+
+    function stopAgent() {
+        isRunning = false;
+        controller?.abort();
+        controller = null;
+        updateUI(false);
+        statusEl.textContent = "IDLE";
+    }
+
+    function updateUI(running: boolean) {
+        if (executeBtn) executeBtn.disabled = running;
+        if (stopBtn) stopBtn.disabled = !running;
+        if (taskInput) taskInput.disabled = running;
+    }
+
+    executeBtn?.addEventListener("click", startAgent);
+    stopBtn?.addEventListener("click", stopAgent);
+    taskInput?.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") startAgent();
+    });
+</script>
