@@ -511,11 +511,228 @@ import Layout from "../layouts/Layout.astro";
 				case "help":
 					response.innerHTML = `
 						<div style="color: var(--color-primary)">AVAILABLE COMMANDS:</div>
-						<div>:help    - Show this message</div>
-						<div>:clear   - Clear terminal</div>
+						<div>:help       - Show this message</div>
+						<div>:clear      - Clear terminal</div>
+						<div>:vimtutor   - Start Vim tutorial</div>
+						<div>:lessons    - List all Vim lessons</div>
+						<div>:lesson [n] - Start lesson number n (1-8)</div>
+						<div>:games      - List Vim mini-games</div>
+						<div>:play [game]- Play a Vim game</div>
+						<div>:commands   - Show Vim command reference</div>
+						<div>:tip        - Get a random Vim tip</div>
 						<div>:connect [url] - Connect agent to external session</div>
 						<div>:nav [u|d|l|r] - Navigate (Up, Down, Left, Right)</div>
 					`;
+					break;
+				case "vimtutor":
+					response.innerHTML = `
+						<div style="color: var(--color-secondary)">═══════════════════════════════════════════════</div>
+						<div style="color: var(--color-primary); font-weight: bold">🎓 VIM TUTORIAL - WELCOME</div>
+						<div style="color: var(--color-secondary)">═══════════════════════════════════════════════</div>
+						<div style="margin-top: 0.5rem">Vim is a powerful text editor with a steep learning curve.</div>
+						<div>This tutorial will teach you the essentials through 8 progressive lessons.</div>
+						<div style="margin-top: 0.5rem; color: var(--color-accent)">📚 LESSONS AVAILABLE:</div>
+						<div>  1. Basic Movement (h, j, k, l)</div>
+						<div>  2. Word Movement (w, b, e)</div>
+						<div>  3. Line Navigation (0, $, ^)</div>
+						<div>  4. Insert Mode (i, a, o, O)</div>
+						<div>  5. Delete & Change (d, c, x)</div>
+						<div>  6. Search & Replace (/, ?, :s)</div>
+						<div>  7. Visual Mode (v, V, Ctrl+v)</div>
+						<div>  8. Undo & Redo (u, Ctrl+r)</div>
+						<div style="margin-top: 0.5rem">Type <span class="cmd">:lesson 1</span> to start!</div>
+						<div>Type <span class="cmd">:games</span> to see mini-games!</div>
+					`;
+					break;
+				case "lessons":
+					response.innerHTML = `
+						<div style="color: var(--color-primary)">📚 VIM LESSONS:</div>
+						<div>1. Basic Movement - Master h, j, k, l navigation</div>
+						<div>2. Word Movement - Jump between words with w, b, e</div>
+						<div>3. Line Navigation - Use 0, $, ^ for line jumps</div>
+						<div>4. Insert Mode - Learn i, a, o, O for editing</div>
+						<div>5. Delete & Change - Remove text with d, c, x</div>
+						<div>6. Search & Replace - Find with / and replace with :s</div>
+						<div>7. Visual Mode - Select text with v, V, Ctrl+v</div>
+						<div>8. Undo & Redo - Master u and Ctrl+r</div>
+						<div style="margin-top: 0.5rem">Use <span class="cmd">:lesson [number]</span> to start a lesson</div>
+					`;
+					break;
+				case "lesson":
+					if (args[0]) {
+						const lessonNum = parseInt(args[0]);
+						if (lessonNum >= 1 && lessonNum <= 8) {
+							const lessons = [
+								{ title: "Basic Movement", keys: "h, j, k, l", desc: "Move left, down, up, right" },
+								{ title: "Word Movement", keys: "w, b, e", desc: "Next word, back word, end word" },
+								{ title: "Line Navigation", keys: "0, $, ^", desc: "Start, end, first non-blank" },
+								{ title: "Insert Mode", keys: "i, a, o, O", desc: "Insert, append, new line below/above" },
+								{ title: "Delete & Change", keys: "x, dw, dd, cw", desc: "Delete char, word, line, change word" },
+								{ title: "Search & Replace", keys: "/, ?, :s", desc: "Search forward/back, substitute" },
+								{ title: "Visual Mode", keys: "v, V, Ctrl+v", desc: "Char, line, block selection" },
+								{ title: "Undo & Redo", keys: "u, Ctrl+r", desc: "Undo last change, redo" }
+							];
+							const lesson = lessons[lessonNum - 1];
+							response.innerHTML = `
+								<div style="color: var(--color-secondary)">═══════════════════════════════════════════════</div>
+								<div style="color: var(--color-primary); font-weight: bold">📖 LESSON ${lessonNum}: ${lesson.title}</div>
+								<div style="color: var(--color-secondary)">═══════════════════════════════════════════════</div>
+								<div style="margin-top: 0.5rem; color: var(--color-accent)">Keys: ${lesson.keys}</div>
+								<div>Description: ${lesson.desc}</div>
+								<div style="margin-top: 0.5rem; padding: 1rem; background: rgba(0,0,0,0.3); border-left: 3px solid var(--color-primary)">
+									<div style="color: var(--color-secondary)">🎯 PRACTICE:</div>
+									<div style="margin-top: 0.5rem; font-family: monospace; color: #fff">
+										${lessonNum === 1 ? "Try typing: hjkl hjkl hjkl (move around!)" : ""}
+										${lessonNum === 2 ? "Try: w w w (jump words) then b b b (back)" : ""}
+										${lessonNum === 3 ? "Try: 0 (start) $ (end) ^ (first char)" : ""}
+										${lessonNum === 4 ? "Try: i (type) ESC, a (type) ESC, o (new line)" : ""}
+										${lessonNum === 5 ? "Try: x (delete char), dw (delete word), dd (delete line)" : ""}
+										${lessonNum === 6 ? "Try: /word (search), n (next), :s/old/new (replace)" : ""}
+										${lessonNum === 7 ? "Try: v (select), y (copy), p (paste)" : ""}
+										${lessonNum === 8 ? "Make changes, then u (undo), Ctrl+r (redo)" : ""}
+									</div>
+								</div>
+								<div style="margin-top: 0.5rem">💡 Tip: Practice in a real Vim editor for best results!</div>
+								<div>Type <span class="cmd">:lesson ${lessonNum + 1}</span> for next lesson</div>
+							`;
+						} else {
+							response.className = "line error";
+							response.textContent = "Lesson number must be between 1 and 8";
+						}
+					} else {
+						response.className = "line error";
+						response.textContent = "Usage: :lesson [1-8]";
+					}
+					break;
+				case "games":
+					response.innerHTML = `
+						<div style="color: var(--color-primary)">🎮 VIM MINI-GAMES:</div>
+						<div style="margin-top: 0.5rem">
+							<div>1. <span style="color: var(--color-accent)">speed-delete</span> [Easy] - Delete all X characters fast! (30s)</div>
+							<div>2. <span style="color: var(--color-accent)">word-jump</span> [Medium] - Navigate to highlighted words (45s)</div>
+							<div>3. <span style="color: var(--color-accent)">vim-golf</span> [Hard] - Transform text with minimum keystrokes (60s)</div>
+							<div>4. <span style="color: var(--color-accent)">search-master</span> [Medium] - Find and replace patterns (40s)</div>
+							<div>5. <span style="color: var(--color-accent)">visual-select</span> [Easy] - Select text blocks in visual mode (35s)</div>
+							<div>6. <span style="color: var(--color-accent)">macro-madness</span> [Hard] - Record and replay macros (90s)</div>
+						</div>
+						<div style="margin-top: 0.5rem">Use <span class="cmd">:play [game-name]</span> to start a game</div>
+						<div>Example: <span class="cmd">:play speed-delete</span></div>
+					`;
+					break;
+				case "play":
+					if (args[0]) {
+						const games = {
+							"speed-delete": {
+								name: "Speed Delete",
+								desc: "Delete all X characters as fast as possible!",
+								time: 30,
+								instructions: "Use 'x' to delete characters, 'f' to find next X, '/' to search"
+							},
+							"word-jump": {
+								name: "Word Jump Challenge",
+								desc: "Navigate to highlighted words using w/b/e",
+								time: 45,
+								instructions: "Use 'w' (next word), 'b' (back word), 'e' (end word)"
+							},
+							"vim-golf": {
+								name: "Vim Golf",
+								desc: "Transform text with minimum keystrokes",
+								time: 60,
+								instructions: "Complete the transformation in as few keys as possible"
+							},
+							"search-master": {
+								name: "Search Master",
+								desc: "Find and replace patterns quickly",
+								time: 40,
+								instructions: "Use '/' to search, ':s/old/new' to replace"
+							},
+							"visual-select": {
+								name: "Visual Selection Race",
+								desc: "Select specific text blocks in visual mode",
+								time: 35,
+								instructions: "Use 'v' (char), 'V' (line), Ctrl+v (block)"
+							},
+							"macro-madness": {
+								name: "Macro Madness",
+								desc: "Record and replay macros to edit repetitive text",
+								time: 90,
+								instructions: "Use 'q' to record, '@' to replay macros"
+							}
+						};
+						const game = games[args[0]];
+						if (game) {
+							response.innerHTML = `
+								<div style="color: var(--color-secondary)">═══════════════════════════════════════════════</div>
+								<div style="color: var(--color-primary); font-weight: bold">🎮 ${game.name.toUpperCase()}</div>
+								<div style="color: var(--color-secondary)">═══════════════════════════════════════════════</div>
+								<div style="margin-top: 0.5rem">${game.desc}</div>
+								<div style="color: var(--color-accent)">⏱️  Time Limit: ${game.time} seconds</div>
+								<div style="margin-top: 0.5rem; padding: 1rem; background: rgba(0,0,0,0.3); border-left: 3px solid var(--color-accent)">
+									<div style="color: var(--color-secondary)">📋 INSTRUCTIONS:</div>
+									<div style="margin-top: 0.5rem">${game.instructions}</div>
+								</div>
+								<div style="margin-top: 0.5rem">🏆 High Score: 0 (Play in a real Vim editor!)</div>
+								<div style="margin-top: 0.5rem; color: var(--color-primary)">Ready? Open Vim and start playing!</div>
+								<div>Type <span class="cmd">:games</span> to see all games</div>
+							`;
+						} else {
+							response.className = "line error";
+							response.textContent = `Game not found. Type :games to see available games`;
+						}
+					} else {
+						response.className = "line error";
+						response.textContent = "Usage: :play [game-name]";
+					}
+					break;
+				case "commands":
+					response.innerHTML = `
+						<div style="color: var(--color-primary)">📖 VIM COMMAND REFERENCE:</div>
+						<div style="margin-top: 0.5rem; color: var(--color-secondary)">MOVEMENT:</div>
+						<div>  h j k l - Left, Down, Up, Right</div>
+						<div>  w b e - Next word, Back word, End word</div>
+						<div>  0 $ ^ - Start, End, First non-blank</div>
+						<div>  gg G - First line, Last line</div>
+						<div>  { } - Previous/Next paragraph</div>
+						<div style="margin-top: 0.5rem; color: var(--color-secondary)">EDITING:</div>
+						<div>  i a o O - Insert before/after, New line below/above</div>
+						<div>  x dd dw - Delete char, line, word</div>
+						<div>  cc cw - Change line, word</div>
+						<div>  r - Replace character</div>
+						<div>  u Ctrl+r - Undo, Redo</div>
+						<div style="margin-top: 0.5rem; color: var(--color-secondary)">VISUAL:</div>
+						<div>  v V Ctrl+v - Char, Line, Block mode</div>
+						<div>  y p P - Yank (copy), Paste after/before</div>
+						<div style="margin-top: 0.5rem; color: var(--color-secondary)">SEARCH:</div>
+						<div>  / ? - Search forward/backward</div>
+						<div>  n N - Next/Previous match</div>
+						<div>  * # - Search word under cursor</div>
+						<div>  :s/old/new - Substitute</div>
+						<div style="margin-top: 0.5rem; color: var(--color-secondary)">ADVANCED:</div>
+						<div>  . - Repeat last command</div>
+						<div>  q @ - Record/Play macro</div>
+						<div>  % - Jump to matching bracket</div>
+						<div>Type <span class="cmd">:vimtutor</span> to start learning!</div>
+					`;
+					break;
+				case "tip":
+					const tips = [
+						"💡 Use 'ci\"' to change text inside quotes",
+						"💡 '.' repeats your last command - super powerful!",
+						"💡 Use '/' to search, then 'n' for next match",
+						"💡 'gg=G' auto-indents your entire file",
+						"💡 Visual block mode (Ctrl+v) is great for columns",
+						"💡 'diw' deletes the word under cursor",
+						"💡 Use marks with 'm' and jump with '`'",
+						"💡 ':%s/old/new/g' replaces all occurrences",
+						"💡 'zz' centers the screen on cursor",
+						"💡 Use 'f' to find a character on the line",
+						"💡 '~' toggles case of character under cursor",
+						"💡 'J' joins the current line with the next",
+						"💡 'Ctrl+a' increments number under cursor",
+						"💡 'gU' converts to uppercase, 'gu' to lowercase",
+						"💡 ':earlier 5m' goes back 5 minutes in time!"
+					];
+					response.innerHTML = tips[Math.floor(Math.random() * tips.length)];
 					break;
 				case "clear":
 					if (outputLog) outputLog.innerHTML = "";
