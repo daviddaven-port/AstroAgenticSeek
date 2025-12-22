@@ -1,6 +1,8 @@
 import React, { useState, useEffect, memo } from 'react';
 import styled from 'styled-components';
 import { useFileSystem } from '../../../contexts/fileSystem';
+import { useProcesses } from '../../../contexts/process';
+
 
 const StyledDocs = styled.div`
   background-color: #fff;
@@ -72,12 +74,20 @@ const Docs: React.FC = () => {
     }
   }, [fs, path]);
 
+  const { open } = useProcesses();
+
   const navigate = (item: string) => {
     const newPath = path === '/' ? `/${item}` : `${path}/${item}`;
     fs?.stat(newPath, (err, stats) => {
-      if (!err && stats?.isDirectory()) setPath(newPath);
+      if (err) return;
+      if (stats?.isDirectory()) {
+        setPath(newPath);
+      } else {
+        open('Ledger', { filePath: newPath });
+      }
     });
   };
+
 
   const goBack = () => {
       setPath(path.substring(0, path.lastIndexOf('/')) || '/');

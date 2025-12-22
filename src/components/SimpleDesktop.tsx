@@ -14,82 +14,104 @@ const StyledWorkbench = styled.div`
 `;
 
 const AgentStation = styled.div`
-  width: 320px;
-  background: linear-gradient(to bottom, #0a0a0a, #1a1a1a);
-  border-right: 1px solid #c0392b; /* Western Red */
+  width: 380px;
+  background: #2c1810; /* Dark Leather */
+  border-right: 3px solid #5c4033; /* Ironside Brown */
   display: flex;
   flex-direction: column;
   z-index: 1000;
+  box-shadow: 10px 0 30px rgba(0,0,0,0.5);
 
   .header {
-    height: 44px;
-    background: linear-gradient(to right, #c0392b, #e67e22); /* Red to Orange */
+    height: 60px;
+    background: #3e2723;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-weight: 800;
-    font-size: 15px;
-    letter-spacing: 1px;
-    border-bottom: 2px solid #f1c40f; /* Gold accent */
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    color: #daa520; /* Vintage Gold */
+    font-family: 'Rye', cursive;
+    font-weight: normal;
+    font-size: 22px;
+    letter-spacing: 2px;
+    border-bottom: 3px solid #daa520;
+    text-shadow: 2px 2px 0px rgba(0,0,0,0.8);
   }
 
   .status {
-    padding: 16px;
-    background: rgba(192, 57, 43, 0.05);
-    border-bottom: 1px solid rgba(192, 57, 43, 0.1);
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 2px solid #5c4033;
     
     .row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
     
-    .label { font-size: 11px; color: #e67e22; font-weight: 600; }
-    .value { font-size: 11px; color: #22c55e; font-family: monospace; }
+    .label { font-size: 11px; color: #a68d71; font-family: 'Rye', cursive; text-transform: uppercase; }
+    .value { font-size: 14px; color: #f4e4bc; font-family: 'Fira Code', monospace; }
   }
 
   .workbench {
     flex: 1;
-    padding: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
     
     .drop-zone {
-      border: 2px dashed #e67e22;
-      border-radius: 8px;
-      height: 100%;
+      border: 3px solid #5c4033;
+      background: #1a130e;
+      border-radius: 4px;
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: rgba(0,0,0,0.6);
       position: relative;
       overflow: hidden;
       text-align: center;
-      box-shadow: inset 0 0 20px rgba(192, 57, 43, 0.1);
+      box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
       
-      .icon { font-size: 48px; margin-bottom: 12px; }
-      .text { font-family: 'Courier New', monospace; font-size: 14px; color: #e67e22; font-weight: bold; }
-      .subtext { font-size: 12px; margin-top: 8px; color: #f1c40f; opacity: 0.8; }
+      .icon { font-size: 64px; margin-bottom: 16px; filter: drop-shadow(0 0 10px rgba(218, 165, 32, 0.3)); }
+      .text { font-family: 'Rye', cursive; font-size: 18px; color: #daa520; }
+      .subtext { font-size: 12px; margin-top: 10px; color: #a68d71; font-family: 'Inter', sans-serif; }
     }
   }
 
   .controls {
-      padding: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+
       button {
           width: 100%;
-          background: #c0392b;
-          border: 1px solid #f1c40f;
-          color: #fff;
-          font-size: 12px;
-          padding: 10px;
-          border-radius: 4px;
+          background: #8b4513; /* Saddle Brown */
+          border: 2px solid #daa520;
+          color: #f4e4bc;
+          font-family: 'Rye', cursive;
+          font-size: 14px;
+          padding: 12px;
           cursor: pointer;
-          font-weight: bold;
-          transition: all 0.2s;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-          &:hover { background: #e67e22; transform: translateY(-1px); }
+          transition: all 0.3s;
+          box-shadow: 0 4px 0px #5c4033;
+          
+          &:hover { 
+            background: #a0522d; 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0px #5c4033;
+          }
+          
+          &:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0px #5c4033;
+          }
+
+          &.secondary {
+            background: #3e2723;
+            border-color: #5c4033;
+          }
       }
   }
 `;
@@ -97,51 +119,77 @@ const AgentStation = styled.div`
 const SetupModal = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0,0,0,0.9);
   z-index: 10000;
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(8px);
 
   .card {
-    width: 400px;
-    background: #1a1a1a;
-    border: 1px solid #3b82f6;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 0 50px rgba(59, 130, 246, 0.2);
+    width: 440px;
+    background: #2c1810;
+    border: 3px solid #daa520;
+    border-radius: 4px;
+    padding: 32px;
+    box-shadow: 0 0 100px rgba(0,0,0,1);
+    position: relative;
 
-    h2 { color: #3b82f6; margin-bottom: 16px; font-size: 18px; }
-    p { color: #888; font-size: 13px; margin-bottom: 20px; }
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 4px;
+        border: 1px solid rgba(218, 165, 32, 0.3);
+        pointer-events: none;
+    }
+
+    h2 { 
+      color: #daa520; 
+      margin-bottom: 20px; 
+      font-size: 24px; 
+      font-family: 'Rye', cursive;
+      text-align: center;
+      text-shadow: 2px 2px 0px #000;
+    }
+    
+    p { 
+      color: #a68d71; 
+      font-size: 14px; 
+      margin-bottom: 24px; 
+      text-align: center;
+      line-height: 1.5;
+    }
     
     .field {
-        margin-bottom: 16px;
-        label { color: #666; font-size: 11px; display: block; margin-bottom: 4px; }
+        margin-bottom: 20px;
+        label { color: #daa520; font-size: 11px; display: block; margin-bottom: 6px; font-family: 'Rye', cursive; letter-spacing: 1px; }
         select, input {
             width: 100%;
-            background: #000;
-            border: 1px solid #333;
-            color: #fff;
-            padding: 10px;
-            border-radius: 4px;
+            background: #1a130e;
+            border: 2px solid #5c4033;
+            color: #f4e4bc;
+            padding: 12px;
+            border-radius: 0;
             font-size: 14px;
             outline: none;
-            &:focus { border-color: #3b82f6; }
+            font-family: 'Fira Code', monospace;
+            &:focus { border-color: #daa520; }
         }
     }
 
     button {
       width: 100%;
-      background: #2563eb;
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 6px;
-      font-weight: bold;
+      background: #8b4513;
+      color: #f4e4bc;
+      border: 2px solid #daa520;
+      padding: 14px;
+      font-family: 'Rye', cursive;
+      font-size: 16px;
       cursor: pointer;
-      margin-top: 8px;
-      &:hover { background: #1d4ed8; }
+      margin-top: 10px;
+      transition: all 0.3s;
+      
+      &:hover { background: #a0522d; transform: scale(1.02); }
     }
   }
 `;
@@ -236,9 +284,10 @@ export const SimpleDesktop: React.FC = () => {
         </div>
 
         <div className="controls">
-            <button onClick={() => setShowSetup(true)}>REFRESH NEURAL KEYS</button>
+            <button onClick={() => open('Telegraph', {})}>SEND TELEGRAPH SIGNAL</button>
+            <button className="secondary" onClick={() => setShowSetup(true)}>REFRESH NEURAL KEYS</button>
             <div style={{ marginTop: '10px', textAlign: 'center' }}>
-                <span style={{ color: '#444', fontSize: '10px' }}>WESTERN OS v2.0 - PORTED ENGINE</span>
+                <span style={{ color: '#5c4033', fontSize: '10px', fontFamily: 'Rye' }}>WESTERN OS v2.1 - FRONTIER ENGINE</span>
             </div>
         </div>
       </AgentStation>

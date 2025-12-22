@@ -74,29 +74,45 @@ const Telegraph: React.FC = () => {
 
     switch (command) {
       case 'help':
-        log('📜 Available signals: ls, cd, cat, mkdir, touch, clear, pwd');
+        log('📜 Available signals: ls, cd, cat, mkdir, touch, clear, pwd, whoami');
+        break;
+      case 'whoami':
+        log('🤠 frontier_pioneer');
         break;
       case 'ls':
         if (!fs) { log('FileSystem not ready'); return; }
         fs.readdir(cwd, (err, files) => {
-          if (err || !files) log('❌ Error reading trail');
-          else log(files.join('    '));
+          if (err || !files) {
+            log('❌ Error: Could not read the trail at ' + cwd);
+          } else if (files.length === 0) {
+            log('(empty trail)');
+          } else {
+            log(files.join('    '));
+          }
         });
         return;
       case 'cd':
         if (!fs) { log('FileSystem not ready'); return; }
-        if (!args[0]) {
+        if (!args[0] || args[0] === '~') {
           setCwd('/home/user');
-          setHistory([...newHistory]);
           return;
         }
-        const target = args[0] === '..' 
-          ? cwd.substring(0, cwd.lastIndexOf('/')) || '/' 
-          : (args[0].startsWith('/') ? args[0] : (cwd === '/' ? `/${args[0]}` : `${cwd}/${args[0]}`));
         
+        let target = args[0];
+        if (!target.startsWith('/')) {
+            target = cwd === '/' ? `/${target}` : `${cwd}/${target}`;
+        }
+        // Basic path resolution for '..'
+        if (args[0] === '..') {
+            target = cwd.substring(0, cwd.lastIndexOf('/')) || '/';
+        }
+
         fs.stat(target, (err, stats) => {
-          if (err || !stats?.isDirectory()) log('❌ No such trail');
-          else setCwd(target);
+          if (err || !stats?.isDirectory()) {
+            log('❌ No such trail: ' + args[0]);
+          } else {
+            setCwd(target);
+          }
         });
         return;
       case 'pwd':
@@ -105,8 +121,15 @@ const Telegraph: React.FC = () => {
       case 'cat':
         if (!fs) { log('FileSystem not ready'); return; }
         if (!args[0]) { log('Usage: cat [file]'); return; }
-        fs.readFile(args[0].startsWith('/') ? args[0] : `${cwd}/${args[0]}`, { encoding: 'utf8' }, (err, data) => {
-          if (err || typeof data !== 'string') log('❌ Could not read scroll');
+        
+        let catTarget = args[0];
+        if (!catTarget.startsWith('/')) {
+            catTarget = cwd === '/' ? `/${catTarget}` : `${cwd}/${catTarget}`;
+        }
+
+        fs.readFile(catTarget, { encoding: 'utf8' }, (err, data) => {
+          if (err) log('❌ Error: Could not read scroll at ' + args[0]);
+          else if (typeof data !== 'string') log('❌ Error: Not a readable scroll');
           else log(data);
         });
         return;
@@ -114,16 +137,16 @@ const Telegraph: React.FC = () => {
         if (!fs) { log('FileSystem not ready'); return; }
         if (!args[0]) { log('Usage: mkdir [dir]'); return; }
         fs.mkdir(`${cwd}/${args[0]}`, (err) => {
-          if (err) log('❌ Could not dig hole');
-          else log(`✅ Created directory: ${args[0]}`);
+          if (err) log('❌ Could not dig hole: ' + args[0]);
+          else log(`✅ Dug new trail: ${args[0]}`);
         });
         return;
       case 'touch':
         if (!fs) { log('FileSystem not ready'); return; }
         if (!args[0]) { log('Usage: touch [file]'); return; }
         fs.writeFile(`${cwd}/${args[0]}`, '', (err) => {
-          if (err) log('❌ Could not write note');
-          else log(`✅ Created file: ${args[0]}`);
+          if (err) log('❌ Could not mark territory: ' + args[0]);
+          else log(`✅ Marked new file: ${args[0]}`);
         });
         return;
       case 'clear':
@@ -132,6 +155,7 @@ const Telegraph: React.FC = () => {
       default:
         log(`❓ Unknown signal: ${command}`);
     }
+
   };
 
   return (

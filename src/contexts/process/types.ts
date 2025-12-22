@@ -27,7 +27,9 @@ type BaseProcessArguments = {
   lockAspectRatio?: boolean;
   peekImage?: string;
   url?: string;
+  filePath?: string;
 };
+
 
 export type ProcessArguments = BaseProcessArguments;
 

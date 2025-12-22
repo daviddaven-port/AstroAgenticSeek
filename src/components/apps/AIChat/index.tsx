@@ -7,74 +7,83 @@ const StyledAIChat = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  background: #1a1a1a;
-  color: #fff;
+  background: #1a130e;
+  color: #f4e4bc;
   font-family: ${({ theme }) => theme.fonts.ui};
 
   .messages {
     flex: 1;
     overflow-y: auto;
-    padding: 16px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
   }
 
   .message {
-    max-width: 80%;
-    padding: 10px 14px;
-    border-radius: 12px;
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 4px;
     font-size: 14px;
-    line-height: 1.4;
+    line-height: 1.5;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 
     &.user {
       align-self: flex-end;
-      background: ${({ theme }) => theme.colors.primary};
-      color: #fff;
+      background: #8b4513;
+      color: #f4e4bc;
+      border: 1px solid #daa520;
     }
 
     &.ai {
       align-self: flex-start;
-      background: #333;
-      color: #eee;
+      background: #2c1810;
+      color: #f4e4bc;
+      border: 1px solid #5c4033;
     }
   }
 
   .input-area {
-    padding: 16px;
-    background: #222;
+    padding: 20px;
+    background: #3e2723;
+    border-top: 2px solid #5c4033;
     display: flex;
-    gap: 8px;
+    gap: 10px;
 
     input {
       flex: 1;
-      background: #111;
-      border: 1px solid #444;
-      border-radius: 4px;
-      padding: 8px 12px;
-      color: #fff;
+      background: #1a130e;
+      border: 2px solid #5c4033;
+      border-radius: 0;
+      padding: 12px;
+      color: #f4e4bc;
       outline: none;
+      font-family: 'Inter', sans-serif;
 
       &:focus {
-        border-color: ${({ theme }) => theme.colors.secondary};
+        border-color: #daa520;
       }
     }
 
     button {
-      background: ${({ theme }) => theme.colors.primary};
-      border: none;
-      border-radius: 4px;
-      padding: 8px 16px;
-      color: #fff;
+      background: #8b4513;
+      border: 2px solid #daa520;
+      border-radius: 0;
+      padding: 0 20px;
+      color: #f4e4bc;
       cursor: pointer;
-      font-weight: bold;
+      font-family: 'Rye', cursive;
+      font-size: 14px;
+      transition: all 0.2s;
 
       &:hover {
-        opacity: 0.9;
+        background: #a0522d;
+        transform: translateY(-1px);
       }
     }
   }
 `;
+
 
 type Message = {
   role: "user" | "ai";
