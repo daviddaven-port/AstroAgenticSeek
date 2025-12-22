@@ -253,20 +253,20 @@ export const AgentOSDesktop: React.FC = () => {
 
   return (
 
-    <div className="flex w-screen h-screen overflow-hidden bg-[#2c1810]">
+    <div className="flex w-screen h-screen overflow-hidden bg-black">
       
-      {/* Left Panel - Agent Hook */}
-      <div className="w-80 bg-[#1a1a1a] border-r-4 border-[#8b4513] flex flex-col shadow-2xl z-50 relative">
-        <div className="h-10 bg-[#8b4513] flex items-center justify-center border-b border-[#5c4033]">
-          <span className="text-[#f4e4bc] font-bold font-serif tracking-widest">AGENT STATION</span>
+      {/* Left Panel - Agent Station (Modern Tech Theme) */}
+      <div className="w-80 bg-gradient-to-b from-[#0a0a0a] to-[#1a1a1a] border-r border-blue-500 border-opacity-30 flex flex-col shadow-2xl z-50 relative">
+        <div className="h-10 bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center border-b border-blue-400">
+          <span className="text-white font-bold tracking-widest text-sm">🤖 AGENT STATION</span>
         </div>
         <div id="agent-workbench-hook" className="flex-1 p-4 overflow-auto">
           {/* Hook for Agentic Seek */}
-          <div className="border-2 border-dashed border-[#5c4033] rounded-lg h-full flex items-center justify-center">
-            <div className="text-center text-[#8b4513] opacity-50">
+          <div className="border-2 border-dashed border-blue-500 border-opacity-30 rounded-lg h-full flex items-center justify-center bg-black bg-opacity-40">
+            <div className="text-center text-blue-400 opacity-60">
               <div className="text-4xl mb-2">🕵️</div>
-              <div>Agent Workbench</div>
-              <div className="text-xs mt-2">Waiting for AgenticSeek...</div>
+              <div className="font-mono text-sm">Agent Workbench</div>
+              <div className="text-xs mt-2 opacity-70">Waiting for AgenticSeek...</div>
             </div>
           </div>
         </div>
