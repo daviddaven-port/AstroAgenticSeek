@@ -1,0 +1,196 @@
+---
+import Window from "./Window.astro";
+---
+
+<Window title="Agent Terminal - zsh" width="900px" height="600px">
+    <div id="terminal-root" class="h-full flex flex-col font-mono text-sm">
+        <!-- Output Area -->
+        <div
+            id="output"
+            class="flex-1 overflow-y-auto p-2 space-y-2 text-green-400"
+        >
+            <div class="text-white/50">
+                AgentOS Kernel Loaded...
+            </div>
+            <div>
+                System Online. Secure Connection Established.
+            </div>
+            <div class="text-white/30 text-xs">
+                Ready for autonomous tasks.
+            </div>
+            <br />
+        </div>
+
+        <!-- Input Area -->
+        <div
+            class="h-12 border-t border-white/10 flex items-center px-2 gap-2 bg-black/40"
+        >
+            <span class="text-blue-400 font-bold">➜</span>
+            <span class="text-cyan-400">~</span>
+            <input
+                type="text"
+                id="command-input"
+                class="bg-transparent border-none outline-none flex-1 text-white placeholder-white/20"
+                placeholder="Awaiting Command..."
+                autocomplete="off"
+            />
+            <div
+                id="loading-spinner"
+                class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin hidden"
+            >
+            </div>
+        </div>
+    </div>
+</Window>
+
+<script>
+    let sessionId = crypto.randomUUID();
+    let previousSteps: any[] = [];
+    let isRunning = false;
+
+    const output = document.getElementById("output");
+    const input = document.getElementById("command-input") as HTMLInputElement;
+    const spinner = document.getElementById("loading-spinner");
+
+    function log(
+        text: string,
+        type: "user" | "system" | "info" | "error" = "system",
+    ) {
+        const line = document.createElement("div");
+        if (type === "user") line.className = "text-white font-bold mt-2";
+        if (type === "info") line.className = "text-blue-300";
+        if (type === "system") line.className = "text-green-400";
+        if (type === "error") line.className = "text-red-400";
+
+        line.textContent = type === "user" ? `> ${text}` : text;
+        output?.appendChild(line);
+        output?.scrollTo(0, output.scrollHeight);
+    }
+
+    async function executeAgentLoop(goal: string, apiKey: string) {
+        if (isRunning) return;
+        isRunning = true;
+        spinner?.classList.remove("hidden");
+        previousSteps = []; // Reset for new goal
+
+        try {
+            // 1. START
+            log(`Starting agent with goal: "${goal}"`, "info");
+            let res = await fetch("/api/agent", {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "START",
+                    goal,
+                    sessionId,
+                    apiKey,
+                    provider: "google",
+                }),
+            });
+            let data = await res.json();
+
+            if (!data.success) throw new Error(data.error);
+
+            log(data.result.text, "system");
+            previousSteps.push(data.result);
+
+            // 2. LOOP
+            let done = false;
+            let maxSteps = 10;
+            let stepCount = 0;
+
+            while (!done && stepCount < maxSteps) {
+                stepCount++;
+
+                // A. GET NEXT STEP
+                log("Thinking...", "info");
+                res = await fetch("/api/agent", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: "GET_NEXT_STEP",
+                        goal,
+                        sessionId,
+                        apiKey,
+                        provider: "google",
+                        previousSteps,
+                    }),
+                });
+                data = await res.json();
+                if (!data.success) throw new Error(data.error);
+
+                const plannedStep = data.result;
+
+                if (data.done || plannedStep.tool === "CLOSE") {
+                    log("Agent completed the task.", "info");
+                    done = true;
+                    break;
+                }
+
+                // B. EXECUTE STEP
+                log(
+                    `Executing: ${plannedStep.tool} ${plannedStep.instruction || ""}`,
+                    "system",
+                );
+                const execRes = await fetch("/api/agent", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: "EXECUTE_STEP",
+                        sessionId,
+                        apiKey,
+                        step: plannedStep,
+                    }),
+                });
+                const execData = await execRes.json();
+                if (!execData.success) throw new Error(execData.error);
+
+                // Record the execution
+                previousSteps.push(plannedStep);
+
+                if (execData.extraction) {
+                    log(
+                        `Observed: ${execData.extraction.substring(0, 100)}...`,
+                        "system",
+                    );
+                }
+
+                // Add small delay
+                await new Promise((r) => setTimeout(r, 1000));
+            }
+        } catch (e: any) {
+            log(`Error: ${e.message}`, "error");
+        } finally {
+            isRunning = false;
+            spinner?.classList.add("hidden");
+            log("Ready.", "info");
+        }
+    }
+
+    input?.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            const command = input.value.trim();
+            if (!command) return;
+
+            if (command.startsWith("/key ")) {
+                const key = command.split(" ")[1];
+                localStorage.setItem("agent_apiKey", key);
+                log("API Key saved.", "info");
+                input.value = "";
+                return;
+            }
+
+            const apiKey = localStorage.getItem("agent_apiKey");
+            if (!apiKey) {
+                log(
+                    'Error: Secure Config Missing. Please configure in Command Center.',
+                    "error",
+                );
+                return;
+            }
+
+            log(command, "user");
+            input.value = "";
+            executeAgentLoop(command, apiKey);
+        }
+    });
+
+    input?.focus();
+</script>

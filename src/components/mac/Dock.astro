@@ -1,0 +1,32 @@
+---
+const apps = [
+  { name: 'Finder', icon: 'https://cdn-icons-png.flaticon.com/512/3767/3767084.png', action: 'toggle-finder' },
+  { name: 'Browser', icon: 'https://cdn-icons-png.flaticon.com/512/5968/5968863.png', action: 'toggle-browser' },
+  { name: 'Terminal', icon: 'https://cdn-icons-png.flaticon.com/512/2920/2920277.png', action: 'toggle-terminal' },
+  { name: 'Settings', icon: 'https://cdn-icons-png.flaticon.com/512/3524/3524659.png', action: 'toggle-settings' }
+];
+---
+
+<div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
+  <div class="mac-glass px-4 py-3 rounded-2xl flex items-end gap-4 h-16">
+    {apps.map((app) => (
+      <button 
+        class="mac-dock-item w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center relative group"
+        data-action={app.action}
+        title={app.name}
+      >
+        <img src={app.icon} alt={app.name} class="w-10 h-10 object-contain drop-shadow-md" />
+        
+        <!-- Tooltip -->
+        <span class="absolute -top-12 left-1/2 -translate-x-1/2 bg-black/70 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+          {app.name}
+        </span>
+        
+        <!-- Active Dot (Mock) -->
+        {app.name === 'Terminal' && (
+          <div class="absolute -bottom-1 w-1 h-1 bg-white/80 rounded-full"></div>
+        )}
+      </button>
+    ))}
+  </div>
+</div>

@@ -1,0 +1,550 @@
+---
+// LEFT SIDE - Neural Agent Interface
+---
+
+<div class="neural-agent-container">
+    <div class="agent-header">
+        <div class="header-left">
+            <div class="status-orb" id="statusOrb"></div>
+            <h2>// NEURAL_AGENT_CORE</h2>
+        </div>
+        <div class="header-right">
+            <button id="configBtn" class="icon-btn" title="Configure">⚙️</button>
+            <div class="status-text" id="statusText">OFFLINE</div>
+        </div>
+    </div>
+
+    <!-- Config Panel -->
+    <div class="config-panel hidden" id="configPanel">
+        <h3>NEURAL LINK CONFIGURATION</h3>
+        <div class="config-group">
+            <label>AI Provider</label>
+            <select id="providerSelect">
+                <option value="gemini">Google Gemini 2.0</option>
+            </select>
+        </div>
+        <div class="config-group">
+            <label>API Authentication Key</label>
+            <input 
+                type="password" 
+                id="agentApiKey" 
+                placeholder="AIza..." 
+                autocomplete="off"
+            />
+            <small>Your key is stored locally and never transmitted to our servers</small>
+        </div>
+        <button id="saveConfigBtn" class="primary-btn">SAVE CONFIGURATION</button>
+    </div>
+
+    <!-- Agent Display -->
+    <div class="agent-display" id="agentDisplay">
+        <div class="log-entry system">
+            <span class="timestamp">[INIT]</span>
+            <span>Neural Agent Core v2.0 initialized</span>
+        </div>
+        <div class="log-entry system">
+            <span class="timestamp">[READY]</span>
+            <span>Awaiting neural link configuration. Click ⚙️ to setup.</span>
+        </div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="agent-input-area">
+        <div class="input-wrapper">
+            <span class="input-prompt">→</span>
+            <input 
+                type="text" 
+                id="agentInput" 
+                placeholder="Enter your request..." 
+                autocomplete="off"
+                disabled
+            />
+            <div class="spinner hidden" id="spinner"></div>
+        </div>
+        <button id="executeBtn" class="execute-btn" disabled>EXECUTE</button>
+    </div>
+</div>
+
+<style>
+    .neural-agent-container {
+        width: 100%;
+        height: 100vh;
+        background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+        display: flex;
+        flex-direction: column;
+        font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+        color: #00ffcc;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Animated background */
+    .neural-agent-container::before {
+        content: '';
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at 50% 50%, rgba(0, 255, 204, 0.03) 0%, transparent 50%);
+        animation: pulse 8s ease-in-out infinite;
+        pointer-events: none;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1) translate(0, 0); }
+        50% { transform: scale(1.1) translate(-5%, -5%); }
+    }
+
+    .agent-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid rgba(0, 255, 204, 0.2);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(10px);
+        z-index: 10;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .status-orb {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #666;
+        box-shadow: 0 0 10px currentColor;
+        animation: blink 2s ease-in-out infinite;
+    }
+
+    .status-orb.active {
+        background: #00ffcc;
+    }
+
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+    }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .icon-btn {
+        background: rgba(0, 255, 204, 0.1);
+        border: 1px solid rgba(0, 255, 204, 0.3);
+        color: #00ffcc;
+        padding: 0.5rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 1.2rem;
+    }
+
+    .icon-btn:hover {
+        background: rgba(0, 255, 204, 0.2);
+        transform: scale(1.1);
+    }
+
+    .status-text {
+        font-size: 0.85rem;
+        font-weight: 600;
+        padding: 0.4rem 1rem;
+        border: 1px solid currentColor;
+        border-radius: 4px;
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    .status-text.online {
+        color: #00ffcc;
+        box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+    }
+
+    .config-panel {
+        position: absolute;
+        top: 80px;
+        right: 2rem;
+        width: 400px;
+        background: rgba(10, 10, 20, 0.95);
+        border: 1px solid rgba(0, 255, 204, 0.3);
+        border-radius: 12px;
+        padding: 2rem;
+        z-index: 100;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(20px);
+    }
+
+    .config-panel.hidden {
+        display: none;
+    }
+
+    .config-panel h3 {
+        margin: 0 0 1.5rem 0;
+        font-size: 0.9rem;
+        letter-spacing: 0.1em;
+        opacity: 0.7;
+    }
+
+    .config-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .config-group label {
+        display: block;
+        font-size: 0.75rem;
+        margin-bottom: 0.5rem;
+        opacity: 0.7;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .config-group input,
+    .config-group select {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(0, 255, 204, 0.3);
+        color: #00ffcc;
+        padding: 0.75rem;
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: 0.9rem;
+    }
+
+    .config-group input:focus,
+    .config-group select:focus {
+        outline: none;
+        border-color: #00ffcc;
+        box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+    }
+
+    .config-group small {
+        display: block;
+        margin-top: 0.5rem;
+        font-size: 0.7rem;
+        opacity: 0.5;
+    }
+
+    .primary-btn {
+        width: 100%;
+        background: #00ffcc;
+        color: #000;
+        border: none;
+        padding: 0.75rem;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .primary-btn:hover {
+        background: #00d4aa;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 255, 204, 0.3);
+    }
+
+    .agent-display {
+        flex: 1;
+        overflow-y: auto;
+        padding: 2rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .log-entry {
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        border-left: 3px solid rgba(0, 255, 204, 0.3);
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+        line-height: 1.6;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .log-entry.user {
+        border-left-color: #fff;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .log-entry.response {
+        border-left-color: #00ffcc;
+        background: rgba(0, 255, 204, 0.05);
+    }
+
+    .log-entry.error {
+        border-left-color: #ff5555;
+        background: rgba(255, 85, 85, 0.05);
+        color: #ff5555;
+    }
+
+    .timestamp {
+        opacity: 0.5;
+        font-size: 0.75rem;
+        margin-right: 0.5rem;
+    }
+
+    .agent-input-area {
+        padding: 1.5rem 2rem;
+        border-top: 1px solid rgba(0, 255, 204, 0.2);
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(10px);
+        display: flex;
+        gap: 1rem;
+        z-index: 10;
+    }
+
+    .input-wrapper {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(0, 255, 204, 0.3);
+        border-radius: 8px;
+        padding: 0 1rem;
+    }
+
+    .input-prompt {
+        font-size: 1.2rem;
+        opacity: 0.7;
+    }
+
+    .input-wrapper input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: #00ffcc;
+        padding: 1rem 0;
+        font-family: inherit;
+        font-size: 1rem;
+    }
+
+    .input-wrapper input:focus {
+        outline: none;
+    }
+
+    .input-wrapper input:disabled {
+        opacity: 0.3;
+    }
+
+    .execute-btn {
+        background: rgba(0, 255, 204, 0.2);
+        border: 1px solid #00ffcc;
+        color: #00ffcc;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .execute-btn:hover:not(:disabled) {
+        background: #00ffcc;
+        color: #000;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 255, 204, 0.3);
+    }
+
+    .execute-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+    .spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(0, 255, 204, 0.2);
+        border-top-color: #00ffcc;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .spinner.hidden {
+        display: none;
+    }
+</style>
+
+<script>
+    // State management
+    let apiKey = '';
+    let sessionId = crypto.randomUUID();
+    let isProcessing = false;
+
+    // DOM elements
+    const configBtn = document.getElementById('configBtn');
+    const configPanel = document.getElementById('configPanel');
+    const saveConfigBtn = document.getElementById('saveConfigBtn');
+    const apiKeyInput = document.getElementById('agentApiKey') as HTMLInputElement;
+    const agentInput = document.getElementById('agentInput') as HTMLInputElement;
+    const executeBtn = document.getElementById('executeBtn') as HTMLButtonElement;
+    const agentDisplay = document.getElementById('agentDisplay');
+    const statusOrb = document.getElementById('statusOrb');
+    const statusText = document.getElementById('statusText');
+    const spinner = document.getElementById('spinner');
+
+    // Load saved configuration
+    function loadConfig() {
+        const savedKey = localStorage.getItem('agent_apiKey');
+        if (savedKey) {
+            apiKey = savedKey;
+            apiKeyInput.value = savedKey;
+            setOnlineStatus(true);
+        }
+    }
+
+    // Save configuration
+    function saveConfig() {
+        const key = apiKeyInput.value.trim();
+        if (!key) {
+            logMessage('error', 'API key cannot be empty');
+            return;
+        }
+
+        // Validate API key format
+        if (!/^AIza[0-9A-Za-z-_]{35}$/.test(key)) {
+            logMessage('error', 'Invalid API key format. Please check your Gemini API key.');
+            return;
+        }
+
+        apiKey = key;
+        localStorage.setItem('agent_apiKey', key);
+        setOnlineStatus(true);
+        configPanel?.classList.add('hidden');
+        logMessage('system', 'Neural link established. API key configured successfully.');
+    }
+
+    // Set online/offline status
+    function setOnlineStatus(online: boolean) {
+        if (online) {
+            statusOrb?.classList.add('active');
+            statusText?.classList.add('online');
+            statusText!.textContent = 'ONLINE';
+            agentInput.disabled = false;
+            executeBtn.disabled = false;
+        } else {
+            statusOrb?.classList.remove('active');
+            statusText?.classList.remove('online');
+            statusText!.textContent = 'OFFLINE';
+            agentInput.disabled = true;
+            executeBtn.disabled = true;
+        }
+    }
+
+    // Log message to display
+    function logMessage(type: 'system' | 'user' | 'response' | 'error', text: string) {
+        const entry = document.createElement('div');
+        entry.className = `log-entry ${type}`;
+        
+        const timestamp = document.createElement('span');
+        timestamp.className = 'timestamp';
+        timestamp.textContent = `[${new Date().toLocaleTimeString()}]`;
+        
+        const content = document.createElement('span');
+        content.textContent = text;
+        
+        entry.appendChild(timestamp);
+        entry.appendChild(content);
+        agentDisplay?.appendChild(entry);
+        agentDisplay!.scrollTop = agentDisplay!.scrollHeight;
+    }
+
+    // Execute task
+    async function executeTask() {
+        const task = agentInput.value.trim();
+        if (!task || isProcessing) return;
+
+        if (!apiKey) {
+            logMessage('error', 'Please configure your API key first');
+            configPanel?.classList.remove('hidden');
+            return;
+        }
+
+        isProcessing = true;
+        agentInput.disabled = true;
+        executeBtn.disabled = true;
+        spinner?.classList.remove('hidden');
+
+        logMessage('user', task);
+        agentInput.value = '';
+
+        try {
+            const response = await fetch('/api/agent-gemini', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'EXECUTE_TASK',
+                    goal: task,
+                    apiKey: apiKey,
+                    sessionId: sessionId
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                logMessage('response', data.result.text);
+            } else {
+                logMessage('error', data.error || 'Unknown error occurred');
+                
+                // If API key error, reset status
+                if (data.error?.includes('API key')) {
+                    setOnlineStatus(false);
+                    apiKey = '';
+                    localStorage.removeItem('agent_apiKey');
+                }
+            }
+        } catch (error: any) {
+            logMessage('error', `Network error: ${error.message}`);
+        } finally {
+            isProcessing = false;
+            agentInput.disabled = false;
+            executeBtn.disabled = false;
+            spinner?.classList.add('hidden');
+        }
+    }
+
+    // Event listeners
+    configBtn?.addEventListener('click', () => {
+        configPanel?.classList.toggle('hidden');
+    });
+
+    saveConfigBtn?.addEventListener('click', saveConfig);
+
+    executeBtn?.addEventListener('click', executeTask);
+
+    agentInput?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            executeTask();
+        }
+    });
+
+    // Initialize
+    loadConfig();
+</script>

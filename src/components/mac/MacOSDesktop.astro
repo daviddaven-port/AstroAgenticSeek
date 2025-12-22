@@ -1,0 +1,541 @@
+---
+// Full macOS Desktop Environment
+---
+
+<div class="macos-desktop">
+    <!-- Menu Bar -->
+    <div class="menu-bar">
+        <div class="menu-left">
+            <span class="menu-item logo">🍎</span>
+            <span class="menu-item active">Finder</span>
+            <span class="menu-item">File</span>
+            <span class="menu-item">Edit</span>
+            <span class="menu-item">View</span>
+            <span class="menu-item">Go</span>
+            <span class="menu-item">Window</span>
+            <span class="menu-item">Help</span>
+        </div>
+        <div class="menu-right">
+            <span class="menu-icon">🔋</span>
+            <span class="menu-icon">📶</span>
+            <span class="menu-icon">🔍</span>
+            <span class="menu-time" id="menuTime">Mon 9:41 AM</span>
+        </div>
+    </div>
+
+    <!-- Desktop Area -->
+    <div class="desktop-area" id="desktopArea">
+        <!-- Desktop Icons -->
+        <div class="desktop-icons">
+            <div class="desktop-icon" data-name="Documents">
+                <img src="https://cdn-icons-png.flaticon.com/512/3767/3767084.png" alt="Folder" />
+                <span>Documents</span>
+            </div>
+            <div class="desktop-icon" data-name="Projects">
+                <img src="https://cdn-icons-png.flaticon.com/512/3767/3767084.png" alt="Folder" />
+                <span>Projects</span>
+            </div>
+            <div class="desktop-icon" data-name="AgentOS.app">
+                <img src="https://cdn-icons-png.flaticon.com/512/2920/2920277.png" alt="App" />
+                <span>AgentOS.app</span>
+            </div>
+        </div>
+
+        <!-- Windows Container -->
+        <div id="windowsContainer"></div>
+    </div>
+
+    <!-- Dock -->
+    <div class="dock">
+        <div class="dock-items">
+            <div class="dock-item" data-app="finder" title="Finder">
+                <img src="https://cdn-icons-png.flaticon.com/512/3767/3767084.png" alt="Finder" />
+                <div class="dock-indicator"></div>
+            </div>
+            <div class="dock-item" data-app="terminal" title="Terminal">
+                <img src="https://cdn-icons-png.flaticon.com/512/2920/2920277.png" alt="Terminal" />
+            </div>
+            <div class="dock-item" data-app="browser" title="Safari">
+                <img src="https://cdn-icons-png.flaticon.com/512/5968/5968863.png" alt="Browser" />
+            </div>
+            <div class="dock-item" data-app="settings" title="System Settings">
+                <img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png" alt="Settings" />
+            </div>
+            <div class="dock-divider"></div>
+            <div class="dock-item" data-app="trash" title="Trash">
+                <img src="https://cdn-icons-png.flaticon.com/512/3221/3221803.png" alt="Trash" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .macos-desktop {
+        width: 100%;
+        height: 100vh;
+        background: url('https://images.unsplash.com/photo-1621360841013-c768371e93cf?q=80&w=2540&auto=format&fit=crop') center/cover;
+        position: relative;
+        overflow: hidden;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    /* Menu Bar */
+    .menu-bar {
+        height: 28px;
+        background: rgba(30, 30, 30, 0.8);
+        backdrop-filter: blur(20px);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 16px;
+        color: white;
+        font-size: 13px;
+        position: relative;
+        z-index: 1000;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .menu-left, .menu-right {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+    }
+
+    .menu-item {
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+    .menu-item:hover {
+        opacity: 0.7;
+    }
+
+    .menu-item.active {
+        font-weight: 600;
+    }
+
+    .menu-item.logo {
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .menu-time {
+        font-size: 12px;
+    }
+
+    /* Desktop Area */
+    .desktop-area {
+        height: calc(100vh - 28px - 80px);
+        position: relative;
+        padding: 20px;
+    }
+
+    .desktop-icons {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 120px;
+    }
+
+    .desktop-icon {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        transition: background 0.2s;
+    }
+
+    .desktop-icon:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .desktop-icon img {
+        width: 64px;
+        height: 64px;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+
+    .desktop-icon span {
+        color: white;
+        font-size: 12px;
+        text-align: center;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Windows */
+    #windowsContainer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+
+    .window {
+        position: absolute;
+        background: rgba(30, 30, 30, 0.95);
+        backdrop-filter: blur(40px);
+        border-radius: 12px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+        pointer-events: auto;
+        transition: transform 0.2s ease;
+    }
+
+    .window:active {
+        cursor: move;
+    }
+
+    .window-header {
+        height: 40px;
+        background: rgba(255, 255, 255, 0.03);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+        padding: 0 16px;
+        cursor: move;
+        user-select: none;
+    }
+
+    .window-controls {
+        display: flex;
+        gap: 8px;
+    }
+
+    .window-control {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: filter 0.2s;
+    }
+
+    .window-control:hover {
+        filter: brightness(1.2);
+    }
+
+    .window-control.close { background: #ff5f56; }
+    .window-control.minimize { background: #ffbd2e; }
+    .window-control.maximize { background: #27c93f; }
+
+    .window-title {
+        flex: 1;
+        text-align: center;
+        color: white;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .window-content {
+        height: calc(100% - 40px);
+        overflow: auto;
+        color: white;
+    }
+
+    /* Dock */
+    .dock {
+        position: fixed;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2000;
+    }
+
+    .dock-items {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(30px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 16px;
+        padding: 8px;
+        display: flex;
+        gap: 8px;
+        align-items: flex-end;
+    }
+
+    .dock-item {
+        width: 56px;
+        height: 56px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative;
+    }
+
+    .dock-item:hover {
+        transform: translateY(-12px) scale(1.2);
+    }
+
+    .dock-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+    }
+
+    .dock-indicator {
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+    }
+
+    .dock-divider {
+        width: 1px;
+        height: 48px;
+        background: rgba(255, 255, 255, 0.2);
+        margin: 0 4px;
+    }
+</style>
+
+<script>
+    // Window Templates
+    const windowTemplates = {
+        finder: {
+            title: 'Finder',
+            width: 800,
+            height: 500,
+            content: `
+                <div style="display: flex; height: 100%;">
+                    <div style="width: 180px; background: rgba(0,0,0,0.2); padding: 16px; border-right: 1px solid rgba(255,255,255,0.05);">
+                        <div style="margin-bottom: 16px;">
+                            <div style="font-size: 11px; color: rgba(255,255,255,0.5); margin-bottom: 8px; font-weight: 600;">FAVORITES</div>
+                            <div style="padding: 6px 12px; border-radius: 6px; background: rgba(99, 102, 241, 0.3); margin-bottom: 4px; cursor: pointer;">Desktop</div>
+                            <div style="padding: 6px 12px; border-radius: 6px; margin-bottom: 4px; cursor: pointer; opacity: 0.7;">Documents</div>
+                            <div style="padding: 6px 12px; border-radius: 6px; margin-bottom: 4px; cursor: pointer; opacity: 0.7;">Downloads</div>
+                            <div style="padding: 6px 12px; border-radius: 6px; margin-bottom: 4px; cursor: pointer; opacity: 0.7;">Applications</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: rgba(255,255,255,0.5); margin-bottom: 8px; font-weight: 600;">LOCATIONS</div>
+                            <div style="padding: 6px 12px; border-radius: 6px; margin-bottom: 4px; cursor: pointer; opacity: 0.7;">Agent Disk</div>
+                        </div>
+                    </div>
+                    <div style="flex: 1; padding: 20px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, 100px); gap: 16px;">
+                            ${['System', 'Apps', 'Config', 'Logs', 'Scripts', 'Data'].map(name => `
+                                <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 8px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/3767/3767084.png" style="width: 64px; height: 64px;" />
+                                    <span style="font-size: 12px; text-align: center;">${name}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `
+        },
+        terminal: {
+            title: 'Terminal - zsh',
+            width: 700,
+            height: 450,
+            content: `
+                <div style="height: 100%; background: rgba(0,0,0,0.9); padding: 16px; font-family: 'SF Mono', Monaco, monospace; font-size: 13px; overflow-y: auto;">
+                    <div style="color: #888; margin-bottom: 8px;">Last login: ${new Date().toLocaleString()}</div>
+                    <div style="color: #0f0; margin-bottom: 8px;">AgentOS v1.0.0</div>
+                    <div style="margin-bottom: 16px; color: #888;">Type 'help' for available commands</div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <span style="color: #0af;">user@agentOS</span>
+                        <span style="color: #fff">~</span>
+                        <span style="color: #0f0;">$</span>
+                        <input type="text" style="flex: 1; background: transparent; border: none; outline: none; color: white; font-family: inherit; font-size: inherit;" placeholder="Enter command..." />
+                    </div>
+                </div>
+            `
+        },
+        browser: {
+            title: 'Safari',
+            width: 900,
+            height: 600,
+            content: `
+                <div style="height: 100%; display: flex; flex-direction: column;">
+                    <div style="height: 40px; background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; padding: 0 16px; gap: 12px;">
+                        <div style="display: flex; gap: 8px;">
+                            <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; cursor: pointer;">←</div>
+                            <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; cursor: pointer;">→</div>
+                        </div>
+                        <div style="flex: 1; height: 28px; background: rgba(0,0,0,0.2); border-radius: 6px; display: flex; align-items: center; padding: 0 12px; font-size: 13px; color: rgba(255,255,255,0.6);">
+                            🔒 https://agentos.local
+                        </div>
+                    </div>
+                    <div style="flex: 1; background: rgba(255,255,255,0.02); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px;">
+                        <div style="font-size: 64px;">🌐</div>
+                        <div style="font-size: 18px; opacity: 0.7;">Welcome to AgentOS Browser</div>
+                        <div style="font-size: 13px; opacity: 0.5;">Secure. Private. Autonomous.</div>
+                    </div>
+                </div>
+            `
+        },
+        settings: {
+            title: 'System Settings',
+            width: 800,
+            height: 550,
+            content: `
+                <div style="display: flex; height: 100%;">
+                    <div style="width: 200px; background: rgba(0,0,0,0.2); padding: 16px; border-right: 1px solid rgba(255,255,255,0.05);">
+                        ${['General', 'Appearance', 'Desktop & Dock', 'Displays', 'Network', 'Privacy', 'Security'].map(item => `
+                            <div style="padding: 8px 12px; border-radius: 6px; margin-bottom: 4px; cursor: pointer; opacity: 0.7; font-size: 13px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'; this.style.opacity='1'" onmouseout="this.style.background='transparent'; this.style.opacity='0.7'">${item}</div>
+                        `).join('')}
+                    </div>
+                    <div style="flex: 1; padding: 32px;">
+                        <div style="font-size: 24px; font-weight: 600; margin-bottom: 24px;">General</div>
+                        <div style="display: flex; flex-direction: column; gap: 20px;">
+                            <div>
+                                <div style="font-size: 13px; margin-bottom: 8px; opacity: 0.7;">Appearance</div>
+                                <div style="display: flex; gap: 12px;">
+                                    <div style="padding: 12px 24px; background: rgba(99, 102, 241, 0.3); border-radius: 8px; cursor: pointer;">Dark</div>
+                                    <div style="padding: 12px 24px; background: rgba(255,255,255,0.05); border-radius: 8px; cursor: pointer; opacity: 0.6;">Light</div>
+                                    <div style="padding: 12px 24px; background: rgba(255,255,255,0.05); border-radius: 8px; cursor: pointer; opacity: 0.6;">Auto</div>
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size: 13px; margin-bottom: 8px; opacity: 0.7;">Accent Color</div>
+                                <div style="display: flex; gap: 8px;">
+                                    ${['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4'].map(color => `
+                                        <div style="width: 32px; height: 32px; background: ${color}; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.2);"></div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `
+        }
+    };
+
+    // State
+    let windows = [];
+    let zIndexCounter = 100;
+    let draggedWindow = null;
+    let dragOffset = { x: 0, y: 0 };
+
+    // Initialize
+    const container = document.getElementById('windowsContainer');
+    
+    // Update time
+    function updateTime() {
+        const now = new Date();
+        const timeStr = now.toLocaleString('en-US', { 
+            weekday: 'short', 
+            hour: 'numeric', 
+            minute: '2-digit',
+            hour12: true 
+        });
+        document.getElementById('menuTime').textContent = timeStr;
+    }
+    updateTime();
+    setInterval(updateTime, 1000);
+
+    // Create Window
+    function createWindow(type, x = null, y = null) {
+        const template = windowTemplates[type];
+        if (!template) return;
+
+        // Calculate centered position if not specified
+        if (x === null) x = (window.innerWidth - template.width) / 2;
+        if (y === null) y = (window.innerHeight - template.height) / 2 - 50;
+
+        const windowEl = document.createElement('div');
+        windowEl.className = 'window';
+        windowEl.style.width = template.width + 'px';
+        windowEl.style.height = template.height + 'px';
+        windowEl.style.left = x + 'px';
+        windowEl.style.top = y + 'px';
+        windowEl.style.zIndex = ++zIndexCounter;
+
+        windowEl.innerHTML = `
+            <div class="window-header">
+                <div class="window-controls">
+                    <div class="window-control close"></div>
+                    <div class="window-control minimize"></div>
+                    <div class="window-control maximize"></div>
+                </div>
+                <div class="window-title">${template.title}</div>
+                <div style="width: 60px;"></div>
+            </div>
+            <div class="window-content">${template.content}</div>
+        `;
+
+        const windowObj = {
+            el: windowEl,
+            type,
+            x,
+            y
+        };
+
+        windows.push(windowObj);
+        container.appendChild(windowEl);
+
+        // Window controls
+        windowEl.querySelector('.window-control.close').onclick = () => closeWindow(windowObj);
+        windowEl.querySelector('.window-control.minimize').onclick = () => minimizeWindow(windowObj);
+
+        // Make draggable
+        const header = windowEl.querySelector('.window-header');
+        header.onmousedown = (e) => startDrag(e, windowObj);
+
+        // Focus on click
+        windowEl.onmousedown = () => {
+            windowEl.style.zIndex = ++zIndexCounter;
+        };
+
+        return windowObj;
+    }
+
+    function closeWindow(win) {
+        win.el.style.transform = 'scale(0.8)';
+        win.el.style.opacity = '0';
+        setTimeout(() => {
+            container.removeChild(win.el);
+            windows = windows.filter(w => w !== win);
+        }, 200);
+    }
+
+    function minimizeWindow(win) {
+        win.el.style.transform = 'scale(0.2) translateY(400px)';
+        win.el.style.opacity = '0';
+        setTimeout(() => {
+            win.el.style.display = 'none';
+        }, 300);
+    }
+
+    function startDrag(e, win) {
+        draggedWindow = win;
+        dragOffset.x = e.clientX - win.el.offsetLeft;
+        dragOffset.y = e.clientY - win.el.offsetTop;
+        win.el.style.zIndex = ++zIndexCounter;
+    }
+
+    document.addEventListener('mousemove', (e) => {
+        if (!draggedWindow) return;
+        const x = e.clientX - dragOffset.x;
+        const y = e.clientY - dragOffset.y;
+        draggedWindow.el.style.left = x + 'px';
+        draggedWindow.el.style.top = y + 'px';
+    });
+
+    document.addEventListener('mouseup', () => {
+        draggedWindow = null;
+    });
+
+    // Dock interactions
+    document.querySelectorAll('.dock-item').forEach(item => {
+        item.onclick = () => {
+            const app = item.dataset.app;
+            if (app && app !== 'trash') {
+                createWindow(app);
+            }
+        };
+    });
+
+    // Open Finder by default
+    createWindow('finder');
+</script>

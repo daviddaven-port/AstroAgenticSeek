@@ -1,0 +1,41 @@
+---
+import Dock from "./Dock.astro";
+import Window from "./Window.astro";
+import "../../styles/macos.css"; // Global styles
+
+// This would eventually manage window state (Z-index, open/close) via client-side scripts
+---
+
+<div
+    class="w-screen h-screen overflow-hidden relative font-sans text-white select-none"
+>
+    <!-- Top Bar (Menu Bar) -->
+    <div
+        class="h-8 mac-glass flex items-center px-4 justify-between z-50 absolute top-0 w-full text-sm font-medium"
+    >
+        <div class="flex gap-4 items-center">
+            <span class="font-bold"></span>
+            <span class="font-bold">AgentOS</span>
+            <span class="opacity-80">File</span>
+            <span class="opacity-80">Edit</span>
+            <span class="opacity-80">View</span>
+            <span class="opacity-80">Go</span>
+            <span class="opacity-80">Window</span>
+            <span class="opacity-80">Help</span>
+        </div>
+        <div class="flex gap-4 items-center">
+            <span class="opacity-80">100%</span>
+            <span class="opacity-80">Mon Dec 13 9:41 AM</span>
+        </div>
+    </div>
+
+    <!-- Desktop Area -->
+    <main
+        class="w-full h-full pt-8 pb-20 relative flex items-center justify-center"
+    >
+        <slot />
+    </main>
+
+    <!-- Dock -->
+    <Dock />
+</div>

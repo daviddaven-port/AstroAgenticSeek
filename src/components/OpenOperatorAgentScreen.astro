@@ -5,13 +5,44 @@
 <div class="screen left-screen">
     <div class="agent-interface">
         <div class="header">
-            <h2>// OPEN_OPERATOR_AGENT</h2>
-            <div id="status" class="status">IDLE</div>
+            <h2>// LOCAL_AGENT_INTERFACE</h2>
+            <div class="header-controls">
+                <button id="settingsBtn" class="icon-btn" title="AI Configuration">⚙️</button>
+                <div id="status" class="status">IDLE</div>
+            </div>
+        </div>
+
+        <!-- Settings Panel (Hidden by default) -->
+        <div id="settingsPanel" class="settings-panel hidden">
+            <h3>AI CONFIGURATION</h3>
+            <div class="setting-group">
+                <label>LLM Provider</label>
+                <select id="providerSelect" class="agent-select">
+                    <option value="openai">OpenRouter / OpenAI</option>
+                    <option value="google">Google Gemini</option>
+                </select>
+            </div>
+            <div class="setting-group">
+                <label>LLM API Key</label>
+                <input
+                    type="password"
+                    id="apiKeyInput"
+                    placeholder="sk-..."
+                    class="agent-input"
+                />
+            </div>
+            <button id="closeSettingsBtn" class="agent-btn small">CLOSE</button>
         </div>
 
         <div class="agent-display" id="agent-logs">
             <div class="log-entry system">
-                > Agent initialized. Waiting for task...
+                > Local Agent initialized.
+            </div>
+            <div class="log-entry system">
+                > Running on Local Playwright Instance.
+            </div>
+            <div class="log-entry system">
+                > Click ⚙️ to configure your AI Model Key.
             </div>
         </div>
 
@@ -19,20 +50,21 @@
             <input
                 type="text"
                 id="taskInput"
-                placeholder="Enter task (e.g. 'Go to google.com and find the price of bitcoin')"
+                placeholder="Enter task (e.g. 'Go to google.com...')"
                 class="agent-input"
             />
             <div class="control-row">
                 <button id="executeBtn" class="agent-btn">EXECUTE</button>
-                <button id="stopBtn" class="agent-btn stop" disabled
-                    >STOP</button
-                >
+                <button id="stopBtn" class="agent-btn stop" disabled>STOP</button>
             </div>
         </div>
     </div>
 </div>
 
 <style>
+    /* ... (Keep existing styles, but I'll overwrite mostly to be safe and clean) ... */
+    /* Actually, the prompt says "Replace the entire content" usually or "Replace block". */
+    /* I will use the existing styles but just show the relevant HTML structure change and script update */
     .left-screen {
         width: 100%;
         height: 100%;
@@ -54,6 +86,7 @@
         gap: 1rem;
         background: rgba(0, 20, 20, 0.95);
         box-shadow: 0 0 30px rgba(0, 255, 204, 0.1);
+        position: relative;
     }
 
     .header {
@@ -64,11 +97,60 @@
         padding-bottom: 1rem;
     }
 
+    .header-controls {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .icon-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.2rem;
+        padding: 5px;
+    }
+
+    .icon-btn:hover {
+        text-shadow: 0 0 10px #00ffcc;
+    }
+
     .status {
         font-weight: bold;
         padding: 2px 8px;
         background: #003322;
         border: 1px solid #00ffcc;
+    }
+
+    .settings-panel {
+        position: absolute;
+        top: 60px;
+        right: 20px;
+        width: 300px;
+        background: #001a1a;
+        border: 1px solid #00ffcc;
+        padding: 1.5rem;
+        z-index: 100;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .settings-panel.hidden {
+        display: none;
+    }
+
+    .setting-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .setting-group label {
+        font-size: 0.8rem;
+        color: #00aa88;
+        font-weight: bold;
     }
 
     .agent-display {
@@ -83,18 +165,16 @@
     .log-entry {
         margin-bottom: 8px;
         line-height: 1.4;
+        word-break: break-all;
     }
-    .log-entry.system {
-        color: #888;
-    }
-    .log-entry.user {
-        color: #fff;
-    }
-    .log-entry.agent {
-        color: #00ffcc;
-    }
+    .log-entry.system { color: #888; }
+    .log-entry.user { color: #fff; }
+    .log-entry.agent { color: #00ffcc; }
     .log-entry.error {
         color: #ff3333;
+        border-left: 3px solid #ff3333;
+        padding-left: 10px;
+        background: rgba(255, 50, 50, 0.1);
     }
     .log-entry.step {
         color: #ffff00;
@@ -109,18 +189,21 @@
         gap: 10px;
     }
 
+    .agent-select,
     .agent-input {
         width: 100%;
-        padding: 1rem;
+        padding: 0.8rem;
         background: #001111;
-        border: 1px solid #00ffcc;
+        border: 1px solid #005544;
         color: #00ffcc;
         font-family: monospace;
-        font-size: 1rem;
+        font-size: 0.9rem;
     }
 
-    .agent-input:focus {
+    .agent-input:focus,
+    .agent-select:focus {
         outline: none;
+        border-color: #00ffcc;
         background: #002222;
     }
 
@@ -142,6 +225,13 @@
         letter-spacing: 1px;
     }
 
+    .agent-btn.small {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+        background: #005544;
+        color: white;
+    }
+
     .agent-btn:hover:not(:disabled) {
         background: #fff;
         box-shadow: 0 0 15px #00ffcc;
@@ -159,32 +249,51 @@
 </style>
 
 <script>
-    import { v4 as uuidv4 } from "uuid"; // Standard UUID if available, or just random
-
-    // Polyfill or simple random ID if uuid package not available in client
-    const generateId = () =>
-        Math.random().toString(36).substring(2, 15) +
-        Math.random().toString(36).substring(2, 15);
+    const generateId = () => Math.random().toString(36).substring(2, 15);
 
     const taskInput = document.getElementById("taskInput") as HTMLInputElement;
-    const executeBtn = document.getElementById(
-        "executeBtn",
-    ) as HTMLButtonElement;
+    const apiKeyInput = document.getElementById("apiKeyInput") as HTMLInputElement;
+    const providerSelect = document.getElementById("providerSelect") as HTMLSelectElement;
+
+    const settingsBtn = document.getElementById("settingsBtn");
+    const settingsPanel = document.getElementById("settingsPanel");
+    const closeSettingsBtn = document.getElementById("closeSettingsBtn");
+
+    const executeBtn = document.getElementById("executeBtn") as HTMLButtonElement;
     const stopBtn = document.getElementById("stopBtn") as HTMLButtonElement;
-    const logsContainer = document.getElementById(
-        "agent-logs",
-    ) as HTMLDivElement;
-    const statusEl = document.getElementById("status") as HTMLDivElement;
+    const logsContainer = document.getElementById("agent-logs");
+    const statusEl = document.getElementById("status");
+
+    // --- Persist Settings ---
+    function loadSettings() {
+        const storedApiKey = localStorage.getItem("agent_apiKey");
+        const storedProvider = localStorage.getItem("agent_provider");
+        if (storedApiKey && apiKeyInput) apiKeyInput.value = storedApiKey;
+        if (storedProvider && providerSelect) providerSelect.value = storedProvider;
+    }
+
+    function saveSettings() {
+        if (apiKeyInput) localStorage.setItem("agent_apiKey", apiKeyInput.value);
+        if (providerSelect) localStorage.setItem("agent_provider", providerSelect.value);
+    }
+
+    loadSettings();
+    apiKeyInput?.addEventListener("change", saveSettings);
+    providerSelect?.addEventListener("change", saveSettings);
+
+    function toggleSettings() {
+        settingsPanel?.classList.toggle("hidden");
+    }
+
+    settingsBtn?.addEventListener("click", toggleSettings);
+    closeSettingsBtn?.addEventListener("click", toggleSettings);
 
     let isRunning = false;
     let sessionId = generateId();
     let previousSteps: any[] = [];
     let controller: AbortController | null = null;
 
-    function log(
-        msg: string,
-        type: "system" | "user" | "agent" | "error" | "step" = "system",
-    ) {
+    function log(msg: string, type: "system" | "user" | "agent" | "error" | "step" = "system") {
         if (!logsContainer) return;
         const entry = document.createElement("div");
         entry.className = `log-entry ${type}`;
@@ -195,93 +304,70 @@
 
     async function startAgent() {
         if (isRunning) return;
+        saveSettings();
 
         const goal = taskInput.value.trim();
-        if (!goal) {
-            log("Please enter a task.", "error");
+        const apiKey = apiKeyInput.value.trim();
+        const provider = providerSelect.value;
+        const envConfig = {}; // No longer needed for Browserbase, pass empty
+
+        if (!goal) return log("Please enter a task.", "error");
+        if (!apiKey) {
+            log("Please configure LLM API Key in Settings.", "error");
+            toggleSettings();
             return;
         }
 
         isRunning = true;
-        sessionId = generateId(); // New session
+        sessionId = generateId();
         previousSteps = [];
         updateUI(true);
         controller = new AbortController();
 
         log(`Starting task: "${goal}"`, "user");
-        log(`Session ID: ${sessionId}`, "system");
+        statusEl!.textContent = "PLANNING...";
 
         try {
-            // 1. Start / Initial Navigation
-            statusEl.textContent = "PLANNING...";
-            const startData = await callApi({
-                action: "START",
-                goal,
-                sessionId,
-            });
-
+            // 1. Start
+            const startData = await callApi({ action: "START", goal, sessionId, apiKey, provider, envConfig });
             if (!startData.success) throw new Error(startData.error);
 
             let currentStep = startData.result;
-            // previousSteps.push(currentStep); // The API returns steps list usually
             if (startData.steps) previousSteps = startData.steps;
-
             log(currentStep.text, "step");
 
             // Loop
             while (isRunning) {
                 if (controller?.signal.aborted) break;
 
-                // 2. Execute Step
-                statusEl.textContent = "EXECUTING...";
-                // log(`Executing: ${currentStep.tool} ${currentStep.instruction}`, 'system');
-
-                const execData = await callApi({
-                    action: "EXECUTE_STEP",
-                    step: currentStep,
-                    sessionId,
-                });
+                statusEl!.textContent = "EXECUTING...";
+                const execData = await callApi({ action: "EXECUTE_STEP", step: currentStep, sessionId, apiKey, provider, envConfig });
                 if (!execData.success) throw new Error(execData.error);
-
+                
                 if (execData.extraction) {
-                    log(
-                        `Extraction: ${JSON.stringify(execData.extraction)}`,
-                        "agent",
-                    );
+                     // truncate extraction for UI
+                    const preview = typeof execData.extraction === 'string' ? execData.extraction.substring(0, 50) + '...' : 'Data extracted';
+                    log(`Extracted: ${preview}`, "agent");
                 }
-
-                if (execData.done) {
-                    log("Goal achieved!", "system");
-                    break;
-                }
-
-                // 3. Get Next Step
-                statusEl.textContent = "THINKING...";
-                const nextData = await callApi({
-                    action: "GET_NEXT_STEP",
-                    goal,
-                    sessionId,
-                    previousSteps,
-                });
+                
+                // Get Next
+                statusEl!.textContent = "THINKING...";
+                const nextData = await callApi({ action: "GET_NEXT_STEP", goal, sessionId, previousSteps, apiKey, provider, envConfig });
                 if (!nextData.success) throw new Error(nextData.error);
 
                 currentStep = nextData.result;
                 if (nextData.steps) previousSteps = nextData.steps;
 
                 log(currentStep.text, "step");
-                log(`Reasoning: ${currentStep.reasoning}`, "system");
-
-                if (currentStep.tool === "CLOSE") {
-                    log("Agent decided to close session.", "system");
+                
+                if (currentStep.tool === "CLOSE" || nextData.done) {
+                    log("Task completed.", "system");
                     break;
                 }
+                await new Promise(r => setTimeout(r, 1000)); // Pacing
             }
         } catch (error: any) {
-            if (error.name === "AbortError") {
-                log("Agent stopped by user.", "warning");
-            } else {
-                log(`Error: ${error.message}`, "error");
-            }
+             if (error.name !== "AbortError") log(`Error: ${error.message}`, "error");
         } finally {
             stopAgent();
         }
@@ -294,7 +380,9 @@
             body: JSON.stringify(payload),
             signal: controller?.signal,
         });
-        return await res.json();
+        const text = await res.text();
+        try { return JSON.parse(text); }
+        catch (e) { throw new Error(`API Error: ${text.substring(0, 100)}`); }
     }
 
     function stopAgent() {
@@ -302,13 +390,14 @@
         controller?.abort();
         controller = null;
         updateUI(false);
-        statusEl.textContent = "IDLE";
+        statusEl!.textContent = "IDLE";
     }
 
     function updateUI(running: boolean) {
         if (executeBtn) executeBtn.disabled = running;
         if (stopBtn) stopBtn.disabled = !running;
         if (taskInput) taskInput.disabled = running;
+        if (apiKeyInput) apiKeyInput.disabled = running;
     }
 
     executeBtn?.addEventListener("click", startAgent);

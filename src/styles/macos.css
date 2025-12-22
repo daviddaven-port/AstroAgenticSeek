@@ -1,0 +1,56 @@
+:root {
+    --mac-bg-color: #000000;
+    --mac-glass-bg: rgba(255, 255, 255, 0.1);
+    --mac-glass-border: rgba(255, 255, 255, 0.2);
+    --mac-glass-blur: 20px;
+    --mac-dock-bg: rgba(255, 255, 255, 0.2);
+    --mac-window-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    --mac-traffic-red: #ff5f56;
+    --mac-traffic-yellow: #ffbd2e;
+    --mac-traffic-green: #27c93f;
+    --mac-font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+    background: url('https://images.unsplash.com/photo-1621360841013-c768371e93cf?q=80&w=2540&auto=format&fit=crop') no-repeat center center fixed;
+    background-size: cover;
+    font-family: var(--mac-font-family);
+    margin: 0;
+    overflow: hidden;
+    /* Desktop feel */
+}
+
+/* Glassmorphism Utility */
+.mac-glass {
+    background: var(--mac-glass-bg);
+    backdrop-filter: blur(var(--mac-glass-blur));
+    -webkit-backdrop-filter: blur(var(--mac-glass-blur));
+    border: 1px solid var(--mac-glass-border);
+    box-shadow: var(--mac-window-shadow);
+}
+
+/* Dock Animations */
+.mac-dock-item {
+    transition: transform 0.2s cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+.mac-dock-item:hover {
+    transform: scale(1.2) translateY(-10px);
+}
+
+/* Window Animations */
+@keyframes window-pop {
+    0% {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.mac-window-enter {
+    animation: window-pop 0.3s ease-out forwards;
+}

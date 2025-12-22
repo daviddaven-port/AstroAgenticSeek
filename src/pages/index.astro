@@ -1,229 +1,683 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import MainScreen from "../components/MainScreen.astro";
-import VoiceAgentScreen from "../components/VoiceAgentScreen.astro";
-import OpenOperatorAgentScreen from "../components/OpenOperatorAgentScreen.astro";
-import DesktopOsScreen from "../components/DesktopOsScreen.astro";
 ---
 
 <Layout>
-	<!-- Screen Views -->
-	<!-- We use CSS transforms to move between screens for that spatial feel -->
-	<div id="viewport" class="viewport">
-		<div class="screen-container center-screen" id="screen-center">
-			<MainScreen />
-		</div>
-		<div class="screen-container up-screen" id="screen-up">
-			<VoiceAgentScreen />
-		</div>
-		<div class="screen-container left-screen" id="screen-left">
-			<OpenOperatorAgentScreen />
-		</div>
-		<div class="screen-container right-screen" id="screen-right">
-			<DesktopOsScreen />
+	<!-- Intro Overlay -->
+	<div class="intro-overlay" id="intro">
+		<div class="intro-content">
+			<h1 class="intro-title">CHOPPD</h1>
+			<p class="intro-subtitle">Agentic Training Playground</p>
+			<button class="enter-btn" id="enterBtn">ENTER SYSTEM</button>
 		</div>
 	</div>
 
-	<!-- Navigation Overlay (Always Visible on Center) -->
-	<div class="nav-overlay" id="nav-overlay">
-		<div class="nav-hint up"><span>▲</span> VOICE</div>
-		<div class="nav-hint left"><span>◀</span> OPERATOR</div>
-		<div class="nav-hint right">OS CLONE <span>▶</span></div>
-		<div class="nav-hint down"><span>▼</span> DATA</div>
+	<!-- Main Content -->
+	<div class="main-content" id="mainContent">
+		<!-- Control Diagram / Navigation Hints -->
+		<div class="nav-hints">
+			<div class="nav-hint up">
+				<span>UP</span>
+				<small>Page Up</small>
+			</div>
+			<div class="nav-hint down">
+				<span>DOWN</span>
+				<small>Page Down</small>
+			</div>
+			<div class="nav-hint left">
+				<span>LEFT</span>
+				<small>Tool Kit</small>
+			</div>
+			<div class="nav-hint right">
+				<span>RIGHT</span>
+				<small>Agent OS</small>
+			</div>
+		</div>
+
+		<!-- Central Terminal -->
+		<div class="terminal-container">
+			<div class="terminal-header">
+				<span class="status-dot"></span>
+				<span class="terminal-title">VIM://COMMAND_CENTER</span>
+				<div class="api-status">API: DISCONNECTED</div>
+			</div>
+			<div class="terminal-window" id="terminalWindow">
+				<div class="output-log" id="outputLog">
+					<div class="line system">
+						Welcome to CHOPPD Agentic Playground.
+					</div>
+					<div class="line warning">
+						WARNING: VIM Knowledge Required for Navigation.
+					</div>
+					<div class="line info">
+						Type <span class="cmd">:help</span> for available commands.
+					</div>
+					<div class="line link">
+						New to Vim? <a
+							href="https://vim.fandom.com/wiki/Tutorial"
+							target="_blank">Access Knowledge Base</a
+						>
+					</div>
+				</div>
+				<div class="input-line">
+					<span class="prompt">~</span>
+					<input
+						type="text"
+						id="vimInput"
+						class="vim-input"
+						autocomplete="off"
+						spellcheck="false"
+						autofocus
+					/>
+					<span class="cursor-block"></span>
+				</div>
+			</div>
+		</div>
+
+		<!-- API Key Input (Hidden by default or subtle) -->
+		<div class="api-panel" id="apiPanel">
+			<h3>// NEURAL_LINK_CONFIG</h3>
+			<div class="input-group">
+				<label>MODEL SELECTOR</label>
+				<select id="modelSelect">
+					<option value="qwen">Qwen 2.5 Coder 7B</option>
+					<option value="deepseek">Deepseek 7B</option>
+					<option value="gemini">Gemini 3 Low</option>
+				</select>
+			</div>
+			<div class="input-group">
+				<label>API KEY</label>
+				<input id="mainApiKeyInput" type="password" placeholder="sk-..." />
+			</div>
+		</div>
 	</div>
 </Layout>
 
 <style>
-	/* Viewport: The Window into the World */
-	.viewport {
-		position: relative;
-		width: 100vw;
-		height: 100vh;
-		overflow: hidden;
-		background: #000;
-		transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-	}
-
-	/* Screen Container: Holds each Page */
-	.screen-container {
-		position: absolute;
-		width: 100vw;
-		height: 100vh;
-		top: 0;
-		left: 0;
-		transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-	}
-
-	/* Positioning Screens Helpers */
-	.center-screen {
-		transform: translate3d(0, 0, 0);
-		z-index: 10;
-	}
-	.up-screen {
-		transform: translate3d(0, -100%, 0);
-		z-index: 10;
-	}
-	.left-screen {
-		transform: translate3d(-100%, 0, 0);
-		z-index: 10;
-	}
-	.right-screen {
-		transform: translate3d(100%, 0, 0);
-		z-index: 10;
-	}
-	/* Down screen future implementation */
-
-	/* Navigation HINTS */
-	.nav-overlay {
+	/* Intro Overlay */
+	.intro-overlay {
 		position: fixed;
 		top: 0;
 		left: 0;
 		width: 100%;
 		height: 100%;
+		background: radial-gradient(circle at center, #0d001a 0%, #050505 100%);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 9999;
+		transition: all 1.2s cubic-bezier(0.76, 0, 0.24, 1);
+	}
+
+	.intro-overlay.hidden {
+		opacity: 0;
+		transform: scale(3);
 		pointer-events: none;
-		z-index: 100;
+	}
+
+	.intro-content {
+		text-align: center;
+		animation: fadeInUp 1s ease-out;
+	}
+
+	.intro-title {
+		font-family: var(--font-display);
+		font-size: clamp(4rem, 15vw, 12rem);
+		background: linear-gradient(
+			135deg,
+			var(--color-primary),
+			var(--color-secondary),
+			var(--color-accent)
+		);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+		margin-bottom: 0;
+		letter-spacing: 0.05em;
+		text-shadow: 0 0 80px rgba(255, 0, 255, 0.5);
+	}
+
+	.intro-subtitle {
+		font-size: clamp(1rem, 3vw, 2rem);
+		color: var(--color-text-muted);
+		margin-top: -1rem;
+		letter-spacing: 0.3em;
+		font-weight: 300;
+		text-transform: uppercase;
+	}
+
+	.enter-btn {
+		margin-top: 3rem;
+		padding: 1rem 3rem;
+		font-size: 1.2rem;
+		font-weight: 700;
+		letter-spacing: 0.2em;
+		background: transparent;
+		border: 2px solid var(--color-primary);
+		color: var(--color-primary);
+		cursor: pointer;
+		position: relative;
+		overflow: hidden;
+		transition: all 0.3s ease;
+		text-transform: uppercase;
+		font-family: var(--font-body);
+	}
+
+	.enter-btn::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: -100%;
+		width: 100%;
+		height: 100%;
+		background: var(--color-primary);
+		transition: left 0.3s ease;
+		z-index: -1;
+	}
+
+	.enter-btn:hover::before {
+		left: 0;
+	}
+
+	.enter-btn:hover {
+		color: #000;
+		box-shadow: 0 0 30px var(--color-primary);
+	}
+
+	/* Main Content */
+	.main-content {
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 0.6s ease 0.6s;
+		height: 100vh;
+		width: 100vw;
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		overflow: hidden;
+	}
+
+	.main-content.visible {
 		opacity: 1;
-		transition: opacity 0.3s;
+		pointer-events: all;
+	}
+
+	/* Navigation Hints (Control Diagram) */
+	.nav-hints {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		pointer-events: none;
 	}
 
 	.nav-hint {
 		position: absolute;
-		font-family: monospace;
-		font-size: 0.8rem;
-		color: rgba(255, 255, 255, 0.3);
+		color: var(--color-text-muted);
+		font-family: var(--font-display);
 		text-transform: uppercase;
-		letter-spacing: 2px;
+		font-size: 1.5rem;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		opacity: 0.5;
+		transition: all 0.3s ease;
 	}
 
 	.nav-hint span {
-		font-size: 1.2rem;
+		text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+	}
+
+	.nav-hint small {
+		font-family: var(--font-body);
+		font-size: 0.8rem;
+		opacity: 0.7;
+		margin-top: 0.2rem;
 	}
 
 	.nav-hint.up {
-		top: 20px;
+		top: 2rem;
 		left: 50%;
 		transform: translateX(-50%);
 	}
 	.nav-hint.down {
-		bottom: 20px;
+		bottom: 2rem;
 		left: 50%;
 		transform: translateX(-50%);
 	}
 	.nav-hint.left {
-		left: 20px;
+		left: 2rem;
 		top: 50%;
-		transform: translateY(-50%);
+		transform: translateY(-50%) rotate(-90deg);
 	}
 	.nav-hint.right {
-		right: 20px;
+		right: 2rem;
 		top: 50%;
-		transform: translateY(-50%);
+		transform: translateY(-50%) rotate(90deg);
 	}
 
-	/* Hiding nav on other screens */
-	body.nav-hidden .nav-overlay {
-		opacity: 0;
+	/* Terminal Styling */
+	.terminal-container {
+		width: 800px;
+		max-width: 90%;
+		background: rgba(10, 10, 12, 0.95);
+		border: 1px solid #333;
+		border-radius: 4px;
+		box-shadow:
+			0 0 50px rgba(0, 0, 0, 0.5),
+			0 0 20px rgba(75, 159, 255, 0.1);
+		backdrop-filter: blur(10px);
+		display: flex;
+		flex-direction: column;
+		animation: glow 4s infinite alternate;
+	}
+
+	@keyframes glow {
+		0% {
+			box-shadow:
+				0 0 50px rgba(0, 0, 0, 0.5),
+				0 0 20px rgba(75, 159, 255, 0.05);
+			border-color: #333;
+		}
+		100% {
+			box-shadow:
+				0 0 60px rgba(0, 0, 0, 0.6),
+				0 0 30px rgba(75, 159, 255, 0.15);
+			border-color: #444;
+		}
+	}
+
+	.terminal-header {
+		padding: 0.5rem 1rem;
+		background: #1a1a1a;
+		border-bottom: 1px solid #333;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.status-dot {
+		width: 10px;
+		height: 10px;
+		background: #00ff00;
+		border-radius: 50%;
+		box-shadow: 0 0 5px #00ff00;
+	}
+
+	.terminal-title {
+		font-family: monospace;
+		font-size: 0.9rem;
+		color: #888;
+		flex-grow: 1;
+	}
+
+	.api-status {
+		font-size: 0.7rem;
+		color: var(--color-primary);
+		border: 1px solid var(--color-primary);
+		padding: 0.1rem 0.4rem;
+		border-radius: 2px;
+	}
+
+	.terminal-window {
+		padding: 1.5rem;
+		height: 400px;
+		overflow-y: auto;
+		font-family: "Courier New", Courier, monospace;
+		color: #ccc;
+		font-size: 1rem;
+		line-height: 1.5;
+	}
+
+	.output-log {
+		margin-bottom: 1rem;
+	}
+
+	.line {
+		margin-bottom: 0.2rem;
+	}
+	.line.system {
+		color: var(--color-secondary);
+	}
+	.line.warning {
+		color: var(--color-accent);
+	}
+	.line.error {
+		color: #ff4444;
+	}
+	.line.info {
+		color: #888;
+	}
+	.line.link a {
+		color: var(--color-primary);
+		text-decoration: none;
+		border-bottom: 1px dotted var(--color-primary);
+	}
+	.cmd {
+		color: var(--color-primary);
+		font-weight: bold;
+	}
+
+	.input-line {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.prompt {
+		color: #00ff00;
+	}
+
+	.vim-input {
+		background: transparent;
+		border: none;
+		color: #fff;
+		font-family: inherit;
+		font-size: inherit;
+		flex-grow: 1;
+		outline: none;
+		caret-color: transparent; /* Use custom cursor block */
+	}
+
+	.cursor-block {
+		width: 10px;
+		height: 1.2em;
+		background: rgba(255, 255, 255, 0.5);
+		animation: blink 1s step-end infinite;
+		display: none; /* Only show if we simulate it, doing native caret for now but hidden */
+	}
+
+	/* Native input caret color restoration for usability, or style custom later */
+	.vim-input {
+		caret-color: #00ff00;
+	}
+
+	/* API Panel */
+	.api-panel {
+		position: absolute;
+		bottom: 2rem;
+		right: 2rem;
+		width: 300px;
+		padding: 1.5rem;
+		background: rgba(0, 0, 0, 0.8);
+		border: 1px solid #333;
+		border-left: 3px solid var(--color-primary);
+	}
+
+	.api-panel h3 {
+		font-size: 0.9rem;
+		margin-bottom: 1rem;
+		color: var(--color-text-muted);
+		letter-spacing: 0.1em;
+	}
+
+	.input-group {
+		margin-bottom: 1rem;
+	}
+
+	.input-group label {
+		display: block;
+		font-size: 0.7rem;
+		color: #666;
+		margin-bottom: 0.3rem;
+	}
+
+	.input-group select,
+	.input-group input {
+		width: 100%;
+		background: #111;
+		border: 1px solid #333;
+		color: #fff;
+		padding: 0.5rem;
+		font-family: "Courier New", monospace;
+	}
+
+	.input-group select:focus,
+	.input-group input:focus {
+		border-color: var(--color-primary);
+		outline: none;
+	}
+
+	@keyframes fadeInUp {
+		from {
+			opacity: 0;
+			transform: translateY(30px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
 </style>
 
 <script>
-	// Navigation State
-	let currentScreen = "center"; // center, up, left, right
+	const enterBtn = document.getElementById("enterBtn");
+	const intro = document.getElementById("intro");
+	const mainContent = document.getElementById("mainContent");
+	const terminalInput = document.getElementById("vimInput");
+	const outputLog = document.getElementById("outputLog");
 
-	const viewport = document.getElementById("viewport");
-	const screenCenter = document.getElementById("screen-center");
-	const screenUp = document.getElementById("screen-up");
-	const screenLeft = document.getElementById("screen-left");
-	const screenRight = document.getElementById("screen-right");
+	// Global Navigation
+	const navigate = (path) => {
+		// Simple client-side navigation for now, can be upgraded to View Transitions
+		window.location.href = path;
+	};
 
-	function navigateTo(screen: string) {
-		if (currentScreen === screen) return;
+	// Intro Transition
+	enterBtn?.addEventListener("click", () => {
+		intro?.classList.add("hidden");
+		setTimeout(() => {
+			mainContent?.classList.add("visible");
+			terminalInput?.focus();
+		}, 800);
+	});
 
-		// Reset all transforms based on target
-		// We actually want to move the VIEWPORT or the screens?
-		// Moving screens relative to viewport is easier conceptually.
+	// Terminal Logic
+	terminalInput?.addEventListener("keydown", (e) => {
+		if (e.key === "Enter") {
+			// @ts-ignore
+			const command = e.target.value.trim();
+			// @ts-ignore
+			e.target.value = ""; // Clear input
 
-		// When going UP, we want the UP screen to come DOWN to 0, and CENTER to go DOWN to 100%
-		// OR better: Move the whole relative container.
-		// Let's use the transform on the individual screens for now, or just a simple state machine switch class.
-		// Actually CSS classes are easiest for "Active" and "Inactive".
+			const line = document.createElement("div");
+			line.className = "line";
+			line.innerHTML = `<span class="prompt">~</span> ${command}`;
+			outputLog?.appendChild(line);
 
-		switch (screen) {
-			case "center":
-				resetTransforms();
-				document.body.classList.remove("nav-hidden");
-				break;
-			case "up":
-				resetTransforms();
-				// Slide UP screen down, Slide Center down
-				if (screenUp) screenUp.style.transform = "translate3d(0, 0, 0)";
-				if (screenCenter)
-					screenCenter.style.transform = "translate3d(0, 100%, 0)";
-				document.body.classList.add("nav-hidden");
-				break;
-			case "left":
-				resetTransforms();
-				if (screenLeft)
-					screenLeft.style.transform = "translate3d(0, 0, 0)";
-				if (screenCenter)
-					screenCenter.style.transform = "translate3d(100%, 0, 0)";
-				document.body.classList.add("nav-hidden");
-				break;
-			case "right":
-				resetTransforms();
-				if (screenRight)
-					screenRight.style.transform = "translate3d(0, 0, 0)";
-				if (screenCenter)
-					screenCenter.style.transform = "translate3d(-100%, 0, 0)";
-				document.body.classList.add("nav-hidden");
-				break;
+			processCommand(command);
+
+			// Auto scroll
+			const terminalWindow = document.getElementById("terminalWindow");
+			if (terminalWindow)
+				terminalWindow.scrollTop = terminalWindow.scrollHeight;
+		}
+	});
+
+	function processCommand(cmd) {
+		const response = document.createElement("div");
+		response.className = "line info";
+
+		const parts = cmd.split(" ");
+		const action = parts[0].startsWith(":")
+			? parts[0].substring(1).toLowerCase()
+			: null;
+		const args = parts.slice(1);
+
+		if (action) {
+			switch (action) {
+				case "help":
+					response.innerHTML = `
+						<div style="color: var(--color-primary)">AVAILABLE COMMANDS:</div>
+						<div>:help    - Show this message</div>
+						<div>:clear   - Clear terminal</div>
+						<div>:connect [url] - Connect agent to external session</div>
+						<div>:nav [u|d|l|r] - Navigate (Up, Down, Left, Right)</div>
+					`;
+					break;
+				case "clear":
+					if (outputLog) outputLog.innerHTML = "";
+					return; // Don't append response
+				case "connect":
+					if (args.length > 0) {
+						const url = args[0];
+						response.innerHTML = `Connecting neural link to <a href="${url}" target="_blank">${url}</a>...`;
+						setTimeout(() => {
+							window.open(url, "_blank");
+						}, 1000);
+					} else {
+						response.className = "line error";
+						response.textContent = "Usage: :connect <url>";
+					}
+					break;
+				case "nav":
+					// Allow CLI navigation
+					if (args[0]) {
+						const dir = args[0][0].toLowerCase();
+						if (dir === "l") navigate("/toolkit");
+						if (dir === "r") navigate("/desktop");
+						if (dir === "u") logSystem("Upper levels locked.");
+						if (dir === "d") logSystem("Lower levels locked.");
+					}
+					break;
+				case "q":
+				case "quit":
+					response.textContent = "Session persistent. Cannot quit.";
+					break;
+				default:
+					response.className = "line error";
+					response.textContent = `E492: Not an editor command: ${action}`;
+			}
+		} else {
+			response.className = "line error";
+			response.textContent = `E488: Trailing characters (Use ':' for commands)`;
 		}
 
-		currentScreen = screen;
+		if (outputLog) outputLog.appendChild(response);
 	}
 
-	function resetTransforms() {
-		if (screenCenter) screenCenter.style.transform = "translate3d(0, 0, 0)";
-		if (screenUp) screenUp.style.transform = "translate3d(0, -100%, 0)";
-		if (screenLeft) screenLeft.style.transform = "translate3d(-100%, 0, 0)";
-		if (screenRight)
-			screenRight.style.transform = "translate3d(100%, 0, 0)";
-	}
-
-	window.addEventListener("keydown", (e) => {
-		// Prevent default only if necessary, but here we capture nav keys
-
-		// If typing in an input, ignore navigation unless it is a modifier
-		const activeTag = document.activeElement?.tagName.toLowerCase();
-		if (activeTag === "input" || activeTag === "textarea") return;
+	// Global Key Listener for "Control Diagram"
+	document.addEventListener("keydown", (e) => {
+		// Only navigate if we aren't typing in the input (unless it's empty? No, keep it simple)
+		if (
+			document.activeElement === terminalInput &&
+			terminalInput.value !== ""
+		) {
+			return; // Allow cursor movement if typing
+		}
+		
+		// If typing in API key input, don't navigate
+		if (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "SELECT") {
+			return;
+		}
 
 		switch (e.key) {
 			case "ArrowUp":
-				if (currentScreen === "center") navigateTo("up");
-				else if (currentScreen === "up") {
-					/* Stay */
-				} else navigateTo("center"); // Return to center from others
+				flashNav("up");
+				logSystem("Navigating UP (Locked)...");
 				break;
 			case "ArrowDown":
-				if (currentScreen === "up") navigateTo("center");
-				// else if (currentScreen === 'center') navigateTo('down'); // TODO
+				flashNav("down");
+				logSystem("Navigating DOWN (Locked)...");
 				break;
 			case "ArrowLeft":
-				if (currentScreen === "center") navigateTo("left");
-				else if (currentScreen === "right") navigateTo("center");
+				flashNav("left");
+				logSystem("Navigating to Tool Kit...");
+				setTimeout(() => navigate("/toolkit"), 500);
 				break;
 			case "ArrowRight":
-				if (currentScreen === "center") navigateTo("right");
-				else if (currentScreen === "left") navigateTo("center");
-				break;
-			case "Escape":
-				navigateTo("center");
+				flashNav("right");
+				logSystem("Navigating to Agent OS...");
+				setTimeout(() => navigate("/desktop"), 500);
 				break;
 		}
 	});
 
-	// Listen for custom navigation events from components (like the terminal)
-	window.addEventListener("navigate", (e: any) => {
-		navigateTo(e.detail);
-	});
+	function flashNav(dir) {
+		const hint = document.querySelector(`.nav-hint.${dir}`);
+		if (hint) {
+			hint.style.color = "#fff";
+			hint.style.textShadow = "0 0 20px var(--color-primary)";
+			hint.style.opacity = "1";
+			setTimeout(() => {
+				hint.style.color = "";
+				hint.style.textShadow = "";
+				hint.style.opacity = "";
+			}, 300);
+		}
+	}
+
+	function logSystem(msg) {
+		const line = document.createElement("div");
+		line.className = "line system";
+		line.textContent = `[SYSTEM] ${msg}`;
+		outputLog?.appendChild(line);
+		const terminalWindow = document.getElementById("terminalWindow");
+		if (terminalWindow)
+			terminalWindow.scrollTop = terminalWindow.scrollHeight;
+	}
+
+	// --- Neural Link Config Logic ---
+	const modelSelect = document.getElementById("modelSelect");
+	const mainApiKeyInput = document.getElementById("mainApiKeyInput");
+	const apiStatus = document.querySelector(".api-status");
+
+	// Map generic models to provider names used by agent
+	// Note: You might want to update the select values in HTML to match 'google'/'openai' strictly,
+	// or map them here. For now, let's map 'gemini' -> 'google'.
+	function getProviderFromValue(val) {
+		if (val.includes("gemini")) return "google";
+		return "openai"; // Default to openai/openrouter for others
+	}
+
+	function loadConfig() {
+		const storedKey = localStorage.getItem("agent_apiKey");
+		const storedProvider = localStorage.getItem("agent_provider"); // 'google' or 'openai'
+		
+		if (storedKey && mainApiKeyInput) {
+			mainApiKeyInput.value = storedKey;
+			updateApiStatus(true);
+		}
+		
+		// Attempt to set select based on stored provider (simple approximation)
+		if (storedProvider && modelSelect) {
+			if (storedProvider === 'google') modelSelect.value = 'gemini';
+			else modelSelect.value = 'qwen'; // Default fallback visual
+		}
+	}
+
+	function saveConfig() {
+		if (mainApiKeyInput) {
+			const key = mainApiKeyInput.value.trim();
+			localStorage.setItem("agent_apiKey", key);
+			updateApiStatus(!!key);
+		}
+		
+		if (modelSelect) {
+			const provider = getProviderFromValue(modelSelect.value);
+			localStorage.setItem("agent_provider", provider);
+		}
+	}
+
+	function updateApiStatus(isConnected) {
+		if (apiStatus) {
+			if (isConnected) {
+				apiStatus.textContent = "API: CONNECTED";
+				apiStatus.style.color = "#00ff00";
+				apiStatus.style.borderColor = "#00ff00";
+				apiStatus.style.boxShadow = "0 0 10px rgba(0,255,0,0.3)";
+			} else {
+				apiStatus.textContent = "API: DISCONNECTED";
+				apiStatus.style.color = "";
+				apiStatus.style.borderColor = "";
+				apiStatus.style.boxShadow = "";
+			}
+		}
+	}
+
+	loadConfig();
+	mainApiKeyInput?.addEventListener("input", saveConfig);
+	modelSelect?.addEventListener("change", saveConfig);
 </script>
