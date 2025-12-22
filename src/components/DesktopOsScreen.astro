@@ -1,5 +1,8 @@
 ---
+import OSProvider from "../contexts";
 import { SimpleDesktop } from "./SimpleDesktop";
 ---
 
-<SimpleDesktop client:only="react" />
+<OSProvider client:only="react">
+    <SimpleDesktop client:only="react" />
+</OSProvider>

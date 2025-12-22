@@ -7,8 +7,8 @@ import Layout from "../layouts/Layout.astro";
 	<div class="intro-overlay" id="intro">
 		<div class="intro-content">
 			<h1 class="intro-title">CHOPPD</h1>
-			<p class="intro-subtitle">Agentic Training Playground</p>
-			<button class="enter-btn" id="enterBtn">ENTER SYSTEM</button>
+			<p class="intro-subtitle">VIM Command training center</p>
+			<button class="enter-btn" id="enterBtn">INITIALIZE TERMINAL</button>
 		</div>
 	</div>
 
@@ -38,8 +38,7 @@ import Layout from "../layouts/Layout.astro";
 		<div class="terminal-container">
 			<div class="terminal-header">
 				<span class="status-dot"></span>
-				<span class="terminal-title">VIM://COMMAND_CENTER</span>
-				<div class="api-status">API: DISCONNECTED</div>
+				<span class="terminal-title">VIM://Frontier_Training</span>
 			</div>
 			<div class="terminal-window" id="terminalWindow">
 				<div class="output-log" id="outputLog">
@@ -74,22 +73,7 @@ import Layout from "../layouts/Layout.astro";
 			</div>
 		</div>
 
-		<!-- API Key Input (Hidden by default or subtle) -->
-		<div class="api-panel" id="apiPanel">
-			<h3>// NEURAL_LINK_CONFIG</h3>
-			<div class="input-group">
-				<label>MODEL SELECTOR</label>
-				<select id="modelSelect">
-					<option value="qwen">Qwen 2.5 Coder 7B</option>
-					<option value="deepseek">Deepseek 7B</option>
-					<option value="gemini">Gemini 3 Low</option>
-				</select>
-			</div>
-			<div class="input-group">
-				<label>API KEY</label>
-				<input id="mainApiKeyInput" type="password" placeholder="sk-..." />
-			</div>
-		</div>
+		<!-- API configuration moved to Agent Station in WesternOS -->
 	</div>
 </Layout>
 
@@ -394,51 +378,7 @@ import Layout from "../layouts/Layout.astro";
 		caret-color: #00ff00;
 	}
 
-	/* API Panel */
-	.api-panel {
-		position: absolute;
-		bottom: 2rem;
-		right: 2rem;
-		width: 300px;
-		padding: 1.5rem;
-		background: rgba(0, 0, 0, 0.8);
-		border: 1px solid #333;
-		border-left: 3px solid var(--color-primary);
-	}
-
-	.api-panel h3 {
-		font-size: 0.9rem;
-		margin-bottom: 1rem;
-		color: var(--color-text-muted);
-		letter-spacing: 0.1em;
-	}
-
-	.input-group {
-		margin-bottom: 1rem;
-	}
-
-	.input-group label {
-		display: block;
-		font-size: 0.7rem;
-		color: #666;
-		margin-bottom: 0.3rem;
-	}
-
-	.input-group select,
-	.input-group input {
-		width: 100%;
-		background: #111;
-		border: 1px solid #333;
-		color: #fff;
-		padding: 0.5rem;
-		font-family: "Courier New", monospace;
-	}
-
-	.input-group select:focus,
-	.input-group input:focus {
-		border-color: var(--color-primary);
-		outline: none;
-	}
+	/* API Panel removed - configuration now in Agent Station */
 
 	@keyframes fadeInUp {
 		from {
@@ -663,17 +603,23 @@ import Layout from "../layouts/Layout.astro";
 						if (game) {
 							response.innerHTML = `
 								<div style="color: var(--color-secondary)">═══════════════════════════════════════════════</div>
-								<div style="color: var(--color-primary); font-weight: bold">🎮 ${game.name.toUpperCase()}</div>
+								<div style="color: var(--color-accent); font-weight: bold">ℹ️  VIM GAME: ${game.name.toUpperCase()}</div>
 								<div style="color: var(--color-secondary)">═══════════════════════════════════════════════</div>
+								<div style="margin-top: 0.5rem; color: var(--color-accent)">⚠️  EDUCATIONAL REFERENCE ONLY</div>
 								<div style="margin-top: 0.5rem">${game.desc}</div>
-								<div style="color: var(--color-accent)">⏱️  Time Limit: ${game.time} seconds</div>
+								<div style="color: var(--color-text-muted)">⏱️  Suggested Time: ${game.time} seconds</div>
 								<div style="margin-top: 0.5rem; padding: 1rem; background: rgba(0,0,0,0.3); border-left: 3px solid var(--color-accent)">
-									<div style="color: var(--color-secondary)">📋 INSTRUCTIONS:</div>
+									<div style="color: var(--color-secondary)">📋 HOW TO PLAY:</div>
 									<div style="margin-top: 0.5rem">${game.instructions}</div>
 								</div>
-								<div style="margin-top: 0.5rem">🏆 High Score: 0 (Play in a real Vim editor!)</div>
-								<div style="margin-top: 0.5rem; color: var(--color-primary)">Ready? Open Vim and start playing!</div>
-								<div>Type <span class="cmd">:games</span> to see all games</div>
+								<div style="margin-top: 0.5rem; padding: 1rem; background: rgba(139,69,19,0.2); border-left: 3px solid var(--color-primary)">
+									<div style="color: var(--color-primary); font-weight: bold">🎯 TO ACTUALLY PLAY THIS GAME:</div>
+									<div style="margin-top: 0.5rem">1. Install Vim: <a href="https://www.vim.org/download.php" target="_blank">vim.org/download</a></div>
+									<div>2. Open a terminal and run: <span class="cmd">vim</span></div>
+									<div>3. Try the challenge described above!</div>
+									<div style="margin-top: 0.5rem; font-size: 0.9em; opacity: 0.8">These games are practice ideas, not playable in this browser.</div>
+								</div>
+								<div style="margin-top: 0.5rem">Type <span class="cmd">:games</span> to see all game ideas</div>
 							`;
 						} else {
 							response.className = "line error";
@@ -740,7 +686,7 @@ import Layout from "../layouts/Layout.astro";
 				case "connect":
 					if (args.length > 0) {
 						const url = args[0];
-						response.innerHTML = `Connecting neural link to <a href="${url}" target="_blank">${url}</a>...`;
+						response.innerHTML = `Opening link to <a href="${url}" target="_blank">${url}</a>...`;
 						setTimeout(() => {
 							window.open(url, "_blank");
 						}, 1000);
@@ -836,65 +782,4 @@ import Layout from "../layouts/Layout.astro";
 			terminalWindow.scrollTop = terminalWindow.scrollHeight;
 	}
 
-	// --- Neural Link Config Logic ---
-	const modelSelect = document.getElementById("modelSelect");
-	const mainApiKeyInput = document.getElementById("mainApiKeyInput");
-	const apiStatus = document.querySelector(".api-status");
-
-	// Map generic models to provider names used by agent
-	// Note: You might want to update the select values in HTML to match 'google'/'openai' strictly,
-	// or map them here. For now, let's map 'gemini' -> 'google'.
-	function getProviderFromValue(val) {
-		if (val.includes("gemini")) return "google";
-		return "openai"; // Default to openai/openrouter for others
-	}
-
-	function loadConfig() {
-		const storedKey = localStorage.getItem("agent_apiKey");
-		const storedProvider = localStorage.getItem("agent_provider"); // 'google' or 'openai'
-		
-		if (storedKey && mainApiKeyInput) {
-			mainApiKeyInput.value = storedKey;
-			updateApiStatus(true);
-		}
-		
-		// Attempt to set select based on stored provider (simple approximation)
-		if (storedProvider && modelSelect) {
-			if (storedProvider === 'google') modelSelect.value = 'gemini';
-			else modelSelect.value = 'qwen'; // Default fallback visual
-		}
-	}
-
-	function saveConfig() {
-		if (mainApiKeyInput) {
-			const key = mainApiKeyInput.value.trim();
-			localStorage.setItem("agent_apiKey", key);
-			updateApiStatus(!!key);
-		}
-		
-		if (modelSelect) {
-			const provider = getProviderFromValue(modelSelect.value);
-			localStorage.setItem("agent_provider", provider);
-		}
-	}
-
-	function updateApiStatus(isConnected) {
-		if (apiStatus) {
-			if (isConnected) {
-				apiStatus.textContent = "API: CONNECTED";
-				apiStatus.style.color = "#00ff00";
-				apiStatus.style.borderColor = "#00ff00";
-				apiStatus.style.boxShadow = "0 0 10px rgba(0,255,0,0.3)";
-			} else {
-				apiStatus.textContent = "API: DISCONNECTED";
-				apiStatus.style.color = "";
-				apiStatus.style.borderColor = "";
-				apiStatus.style.boxShadow = "";
-			}
-		}
-	}
-
-	loadConfig();
-	mainApiKeyInput?.addEventListener("input", saveConfig);
-	modelSelect?.addEventListener("change", saveConfig);
 </script>
