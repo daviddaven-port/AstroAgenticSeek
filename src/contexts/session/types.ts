@@ -31,7 +31,10 @@ export type SessionData = {
   wallpaperFit: WallpaperFit;
   wallpaperImage: string;
   windowStates: WindowStates;
+  stackOrder: string[];
+  openedProcesses: Record<string, any>;
 };
+
 
 export type SessionContextState = SessionData & {
   foregroundId: string;
@@ -55,7 +58,9 @@ export type SessionContextState = SessionData & {
   setViews: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   setWallpaper: (image: string, fit?: WallpaperFit) => void;
   setWindowStates: React.Dispatch<React.SetStateAction<WindowStates>>;
+  setOpenedProcesses: React.Dispatch<React.SetStateAction<Record<string, any>>>;
   stackOrder: string[];
+
   updateRecentFiles: (url: string, pid: string, title?: string) => void;
 };
 

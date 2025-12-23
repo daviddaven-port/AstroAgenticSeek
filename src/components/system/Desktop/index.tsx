@@ -2,6 +2,8 @@ import React, { memo } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { useProcesses } from "../../../contexts/process";
 import { useSession } from "../../../contexts/session";
+import { useFileSystem } from "../../../contexts/fileSystem";
+
 import { WestOSTheme } from "../../../styles/WestOS/theme";
 import Taskbar from "../Taskbar";
 import Window from "../Window";
@@ -42,18 +44,26 @@ const StyledDesktop = styled.main`
 
 const Dock = styled.div`
   position: absolute;
-  bottom: 40px;
+  bottom: 50px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 10px 20px;
+  background: #3e2723; /* Dark Wood */
+  border-radius: 8px;
+  padding: 8px 16px;
   display: flex;
-  gap: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  gap: 20px;
+  border: 2px solid #daa520; /* Gold border */
   z-index: 1000;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+
+  &::before {
+      content: "";
+      position: absolute;
+      inset: 2px;
+      border: 1px solid rgba(218, 165, 32, 0.4);
+      pointer-events: none;
+  }
+
 
   .dock-item {
     font-size: 32px;
@@ -70,15 +80,19 @@ const Dock = styled.div`
     &::after {
       content: attr(data-title);
       position: absolute;
-      bottom: -25px;
-      font-size: 10px;
-      color: #fff;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: #daa520;
       opacity: 0;
       transition: opacity 0.2s;
-      background: rgba(0,0,0,0.8);
-      padding: 2px 6px;
-      border-radius: 4px;
+      background: #1a130e;
+      border: 1px solid #daa520;
+      padding: 3px 8px;
+      border-radius: 2px;
       white-space: nowrap;
+      font-family: 'Rye', cursive;
     }
 
     &:hover::after {
@@ -87,15 +101,51 @@ const Dock = styled.div`
   }
 `;
 
+const LoadingOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: #1a130e;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #daa520;
+  font-family: 'Rye', cursive;
+
+  .spinner {
+    font-size: 48px;
+    margin-bottom: 20px;
+    animation: spin 2s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+`;
+
+
 const Desktop: React.FC = () => {
   const { processes = {}, open } = useProcesses();
   const { wallpaperImage } = useSession() || {};
+  const { isLoaded: fsLoaded } = useFileSystem() || {};
 
   const apps = [
     { id: 'Telegraph', icon: '📠', title: 'Telegraph' },
     { id: 'Docs', icon: '💼', title: 'Docs' },
     { id: 'Ledger', icon: '📓', title: 'Ledger' },
+    { id: 'AIChat', icon: '🤖', title: 'AI Assistant' },
   ];
+
+  if (!fsLoaded) {
+    return (
+      <LoadingOverlay>
+        <div className="spinner">⚙️</div>
+        <div>MOUNTING THE TRAIL...</div>
+      </LoadingOverlay>
+    );
+  }
 
   return (
     <ThemeProvider theme={WestOSTheme}>

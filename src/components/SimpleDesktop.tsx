@@ -58,12 +58,13 @@ const AgentStation = styled.div`
     padding: 24px;
     display: flex;
     flex-direction: column;
+    gap: 20px;
     
     .drop-zone {
       border: 3px solid #5c4033;
       background: #1a130e;
       border-radius: 4px;
-      flex: 1;
+      height: 180px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -73,9 +74,42 @@ const AgentStation = styled.div`
       text-align: center;
       box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
       
-      .icon { font-size: 64px; margin-bottom: 16px; filter: drop-shadow(0 0 10px rgba(218, 165, 32, 0.3)); }
-      .text { font-family: 'Rye', cursive; font-size: 18px; color: #daa520; }
-      .subtext { font-size: 12px; margin-top: 10px; color: #a68d71; font-family: 'Inter', sans-serif; }
+      .icon { font-size: 64px; margin-bottom: 16px; filter: drop-shadow(0 0 10px rgba(218, 165, 32, 0.3)); z-index: 2; }
+      .text { font-family: 'Rye', cursive; font-size: 18px; color: #daa520; z-index: 2; }
+      .subtext { font-size: 12px; margin-top: 10px; color: #a68d71; font-family: 'Inter', sans-serif; z-index: 2; }
+
+      .pulse {
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(circle, rgba(218, 165, 32, 0.15) 0%, transparent 70%);
+          animation: pulse-ring 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+    }
+
+    .quick-tools {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        
+        .tool-card {
+            background: #3e2723;
+            border: 1px solid #5c4033;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            
+            &:hover {
+                background: #5c4033;
+                border-color: #daa520;
+                transform: translateX(4px);
+            }
+
+            .tool-icon { font-size: 20px; }
+            .tool-label { font-size: 11px; color: #f4e4bc; font-family: 'Rye', cursive; }
+        }
     }
   }
 
@@ -113,6 +147,11 @@ const AgentStation = styled.div`
             border-color: #5c4033;
           }
       }
+  }
+
+  @keyframes pulse-ring {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.1); }
   }
 `;
 
@@ -269,17 +308,30 @@ export const SimpleDesktop: React.FC = () => {
         <div className="workbench">
           <div className="drop-zone">
             <div className="icon">🕵️</div>
-            <div className="text text-sm">Agent Workbench</div>
+            <div className="text">Agent Workbench</div>
             <div className="subtext">
                 {fs ? "Western FS Synced" : "Waiting for FS..."}
             </div>
-            {/* Visual pulse for the workbench area */}
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
-              opacity: 0.5
-            }} />
+            <div className="pulse" />
+          </div>
+
+          <div className="quick-tools">
+              <div className="tool-card" onClick={() => open('Telegraph', {})}>
+                  <span className="tool-icon">📟</span>
+                  <span className="tool-label">CONSOLE</span>
+              </div>
+              <div className="tool-card" onClick={() => open('Docs', {})}>
+                  <span className="tool-icon">📂</span>
+                  <span className="tool-label">FILES</span>
+              </div>
+              <div className="tool-card" onClick={() => open('Ledger', {})}>
+                  <span className="tool-icon">📔</span>
+                  <span className="tool-label">LEDGER</span>
+              </div>
+              <div className="tool-card" onClick={() => open('AIChat', {})}>
+                  <span className="tool-icon">🧠</span>
+                  <span className="tool-label">NEURAL</span>
+              </div>
           </div>
         </div>
 

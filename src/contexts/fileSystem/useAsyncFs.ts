@@ -20,9 +20,11 @@ export type AsyncFS = {
   ) => Promise<boolean>;
 };
 
-const useAsyncFs = (): AsyncFS & { fs?: FSModule } => {
+const useAsyncFs = (): AsyncFS & { fs?: FSModule, isLoaded: boolean } => {
   const [fs, setFs] = useState<FSModule>();
+  const [isLoaded, setIsLoaded] = useState(false);
   const fsRef = useRef<FSModule>(undefined);
+
 
   const asyncFs: AsyncFS = useMemo(
     () => ({
@@ -109,12 +111,14 @@ const useAsyncFs = (): AsyncFS & { fs?: FSModule } => {
           const loadedFs = BrowserFS.BFSRequire("fs");
           fsRef.current = loadedFs;
           setFs(loadedFs);
+          setIsLoaded(true);
         }
       );
     }
   }, [fs]);
 
-  return { ...asyncFs, fs };
+  return { ...asyncFs, fs, isLoaded };
 };
+
 
 export default useAsyncFs;

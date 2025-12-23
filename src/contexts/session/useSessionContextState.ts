@@ -20,6 +20,7 @@ const useSessionContextState = (): SessionContextState => {
   const [wallpaperImage, setWallpaperImage] = useState(DEFAULT_WALLPAPER);
   const [wallpaperFit, setWallpaperFit] = useState<WallpaperFit>(DEFAULT_WALLPAPER_FIT as WallpaperFit);
   const [stackOrder, setStackOrder] = useState<string[]>([]);
+  const [openedProcesses, setOpenedProcesses] = useState<Record<string, any>>({});
   const [foregroundId, setForegroundId] = useState("");
 
   const prependToStack = useCallback((id: string) => {
@@ -45,6 +46,8 @@ const useSessionContextState = (): SessionContextState => {
               if (session.windowStates) setWindowStates(session.windowStates);
               if (session.themeName) setThemeName(session.themeName);
               if (session.wallpaperImage) setWallpaperImage(session.wallpaperImage);
+              if (session.stackOrder) setStackOrder(session.stackOrder);
+              if (session.openedProcesses) setOpenedProcesses(session.openedProcesses);
               setSessionLoaded(true);
             } catch {
               setSessionLoaded(true);
@@ -66,11 +69,13 @@ const useSessionContextState = (): SessionContextState => {
           themeName,
           wallpaperImage,
           wallpaperFit,
+          stackOrder,
+          openedProcesses,
         }),
         true
       );
     }
-  }, [sessionLoaded, windowStates, themeName, wallpaperImage, wallpaperFit, writeFile]);
+  }, [sessionLoaded, windowStates, themeName, wallpaperImage, wallpaperFit, stackOrder, openedProcesses, writeFile]);
 
   return {
     foregroundId,
@@ -85,10 +90,11 @@ const useSessionContextState = (): SessionContextState => {
     },
     setWindowStates,
     stackOrder,
+    openedProcesses,
+    setOpenedProcesses,
     themeName,
     wallpaperFit: wallpaperFit as WallpaperFit,
     wallpaperImage: wallpaperImage as string,
-    // Add missing pieces with defaults for now
     aiEnabled: false,
     clockSource: "local",
     cursor: undefined,
@@ -108,5 +114,6 @@ const useSessionContextState = (): SessionContextState => {
     updateRecentFiles: () => {},
   };
 };
+
 
 export default useSessionContextState;
